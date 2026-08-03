@@ -19,9 +19,11 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+type FilterType = 'all' | 'overdue' | 'sent' | 'paid';
+
 export function RecentInvoicesTable() {
   const router = useRouter();
-  const [filter, setFilter] = useState<'all' | 'overdue' | 'sent' | 'paid'>('all');
+  const [filter, setFilter] = useState<FilterType>('all');
 
   // Payment Recording State
   const [selectedPaymentInv, setSelectedPaymentInv] = useState<InvoiceMock | null>(null);
