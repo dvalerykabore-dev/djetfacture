@@ -20,13 +20,14 @@ import {
 import Link from 'next/link';
 
 type FilterType = 'all' | 'overdue' | 'sent' | 'paid';
+type SelectedInvType = InvoiceMock | null;
 
 export function RecentInvoicesTable() {
   const router = useRouter();
   const [filter, setFilter] = useState<FilterType>('all');
 
   // Payment Recording State
-  const [selectedPaymentInv, setSelectedPaymentInv] = useState<InvoiceMock | null>(null);
+  const [selectedPaymentInv, setSelectedPaymentInv] = useState<SelectedInvType>(null);
   const [payAmount, setPayAmount] = useState<number>(0);
   const [payMethod, setPayMethod] = useState<string>('Wave');
   const [payRef, setPayRef] = useState<string>('');
