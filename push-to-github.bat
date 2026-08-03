@@ -54,7 +54,7 @@ echo.
 %GIT_CMD% branch -M main
 %GIT_CMD% remote remove origin 2>nul
 %GIT_CMD% remote add origin https://github.com/dvalerykabore-dev/djetfacture.git
-%GIT_CMD% push -u origin main
+%GIT_CMD% push -u origin main --force
 
 echo.
 echo =========================================================
