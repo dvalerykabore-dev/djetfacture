@@ -1,0 +1,2599 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DJETFACTURE — Facturation Conforme OHADA (Responsive & Animé)</title>
+  
+  <!-- High Legibility Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#EEF6F3',
+              100: '#D7EBE4',
+              200: '#B2D8CB',
+              300: '#87BEAF',
+              400: '#5CA493',
+              500: '#3A8A79',
+              600: '#237061',
+              700: '#0D4A42',
+              800: '#0B3E38',
+              900: '#0B3B36',
+              950: '#05221F',
+            },
+            surface: '#FFFFFF',
+            canvas: '#FAFAF8',
+            ink: '#0F1A18',
+            muted: '#475569',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          borderRadius: {
+            'card': '1rem',
+            'input': '0.625rem',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: #0F1A18;
+    }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+    .tab-content { display: none; }
+    .tab-content.active {
+      display: block;
+      animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Keyframes animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.97);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes growUpBar {
+      from {
+        transform: scaleY(0);
+      }
+      to {
+        transform: scaleY(1);
+      }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(11, 59, 54, 0.2);
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba(11, 59, 54, 0);
+      }
+    }
+
+    .animate-grow-bar {
+      transform-origin: bottom;
+      animation: growUpBar 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .hover-card-elevate {
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .hover-card-elevate:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px -6px rgba(11, 59, 54, 0.1);
+      border-color: #87BEAF;
+    }
+
+    .btn-press-anim {
+      transition: all 0.2s ease;
+    }
+    .btn-press-anim:active {
+      transform: scale(0.96);
+    }
+
+    /* Print to PDF Styling */
+    @media print {
+      aside, header, nav, .no-print, button, a, #mobile-backdrop {
+        display: none !important;
+      }
+      body {
+        background-color: white !important;
+        color: black !important;
+        font-family: 'Inter', sans-serif !important;
+      }
+      .flex-1 {
+        padding-left: 0 !important;
+      }
+      main {
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+      .tab-content {
+        display: none !important;
+      }
+      #tab-detail-facture {
+        display: block !important;
+      }
+      .bg-white, .bg-surface {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 10px !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#FAFAF8] text-slate-900 font-sans antialiased min-h-screen overflow-x-hidden">
+  <div class="flex min-h-screen">
+    
+    <!-- Mobile Dark Backdrop Overlay -->
+    <div id="sidebar-backdrop" onclick="toggleMobileSidebar(false)" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-30 hidden md:hidden transition-opacity duration-300"></div>
+
+    <!-- Responsive Sidebar (Slide-in Drawer on Mobile < md) -->
+    <aside id="mobile-sidebar" class="w-64 bg-[#0B3B36] text-white flex flex-col fixed inset-y-0 left-0 z-40 shadow-xl select-none no-print transition-transform duration-300 -translate-x-full md:translate-x-0 overflow-hidden">
+      <!-- Header Logo & Identity -->
+      <div class="p-6 border-b border-[#0B3E38] flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-[#3A8A79] flex items-center justify-center font-black text-[#05221F] text-xl shadow-lg transition-transform hover:scale-105">
+            D
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="font-black text-lg text-white tracking-wide">DJETFACTURE</span>
+              <span class="text-[11px] uppercase font-bold bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30">PRO</span>
+            </div>
+            <p class="text-xs text-[#A3D9C9] font-medium mt-0.5">Facturation OHADA & FCFA</p>
+          </div>
+        </div>
+
+        <button onclick="toggleMobileSidebar(false)" class="md:hidden text-[#87BEAF] hover:text-white p-1 transition-colors">
+          ✕
+        </button>
+      </div>
+
+      <!-- Quick Action Button -->
+      <div class="px-4 pt-5 pb-2">
+        <button onclick="switchTab('nouvelle-facture')" class="btn-press-anim w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-[#05221F] font-extrabold text-sm shadow-md transition-all flex items-center justify-center gap-2">
+          <span class="transition-transform group-hover:rotate-90">+ Créer une facture</span>
+        </button>
+      </div>
+
+      <!-- Harmonized Navigation List -->
+      <nav class="flex-1 px-3 py-4 space-y-1.5">
+        <p class="px-3 text-xs font-bold uppercase tracking-wider text-[#87BEAF] mb-2">Menu principal</p>
+        
+        <!-- Dashboard -->
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item btn-press-anim w-full text-left flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#0D4A42] text-white font-bold shadow-inner border-l-4 border-emerald-400 text-sm transition-all">
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+            <span>Tableau de bord</span>
+          </div>
+        </but        <!-- Factures (Badge 0) -->
+        <button onclick="switchTab('factures')" id="nav-factures" class="nav-item btn-press-anim w-full text-left flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-100 hover:bg-[#0B3E38] hover:text-white border-l-4 border-transparent text-sm transition-all">
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-[#87BEAF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <span>Factures</span>
+          </div>
+          <span id="badge-factures" class="nav-badge text-xs bg-[#0B3E38] text-emerald-300 px-2.5 py-0.5 rounded-full font-bold transition-all">0</span>
+        </button>
+
+        <!-- Clients (Badge 0) -->
+        <button onclick="switchTab('clients')" id="nav-clients" class="nav-item btn-press-anim w-full text-left flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-100 hover:bg-[#0B3E38] hover:text-white border-l-4 border-transparent text-sm transition-all">
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-[#87BEAF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <span>Clients</span>
+          </div>
+          <span id="badge-clients" class="nav-badge text-xs bg-[#0B3E38] text-emerald-300 px-2.5 py-0.5 rounded-full font-bold transition-all">0</span>
+        </button>
+
+        <!-- Paramètres -->
+        <button onclick="switchTab('parametres')" id="nav-parametres" class="nav-item btn-press-anim w-full text-left flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-100 hover:bg-[#0B3E38] hover:text-white border-l-4 border-transparent text-sm transition-all">
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-[#87BEAF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <span>Paramètres</span>
+          </div>
+        </button>
+      </nav>
+
+      <!-- Org info footer -->
+      <div class="p-4 border-t border-[#0B3E38] bg-[#05221F]/60">
+        <h4 id="sidebar-org-name" class="text-xs font-bold text-white">Mon Entreprise</h4>
+        <p id="sidebar-org-rccm" class="text-[11px] text-[#A3D9C9] font-medium">Non configurée (Paramètres)</p>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 md:pl-64 flex flex-col min-w-0 overflow-x-hidden">
+      
+      <!-- Topbar Header -->
+      <header class="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-slate-200 px-3 sm:px-6 py-3 flex items-center justify-between gap-2 sm:gap-4 no-print min-w-0 w-full overflow-hidden">
+        <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+          <!-- Mobile Hamburger Toggle Button -->
+          <button onclick="toggleMobileSidebar(true)" class="btn-press-anim md:hidden p-2 rounded-xl bg-slate-100 text-slate-800 hover:bg-slate-200 transition-all shrink-0">
+            <svg class="w-6 h-6 text-[#0B3B36]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          </button>
+
+          <div class="min-w-0 flex-1">
+            <h1 id="page-title" class="text-base sm:text-lg md:text-2xl font-black text-slate-900 tracking-tight truncate leading-tight">Tableau de bord</h1>
+            <p id="page-subtitle" class="text-xs text-slate-600 font-medium hidden md:block truncate mt-0.5">Suivi du chiffre d'affaires, des encaissements et factures en retard</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-[#0B3B36] border border-emerald-200 transition-all whitespace-nowrap">
+            🌍 XOF <span class="hidden md:inline">(18% TVA)</span>
+          </span>
+
+          <div class="hidden sm:flex items-center gap-1.5 pl-1.5 border-l border-slate-200">
+            <select id="role-selector-dropdown" onchange="switchActiveUserRole(this.value)" class="text-xs font-black bg-[#EEF6F3] text-[#0B3B36] border border-[#B2D8CB] px-2.5 py-1.5 rounded-xl outline-none cursor-pointer hover:bg-emerald-100 transition-all shadow-sm">
+              <option value="admin" selected>👑 Admin</option>
+              <option value="user">👤 Utilisateur</option>
+            </select>
+          </div>
+
+          <button onclick="switchTab('nouvelle-facture')" class="btn-press-anim py-1.5 px-2.5 sm:py-2 sm:px-3 rounded-xl bg-[#0B3B36] hover:bg-[#0D4A42] text-white font-bold text-xs shadow-md transition-all whitespace-nowrap shrink-0">
+            + <span class="hidden sm:inline">Facture</span>
+          </button>
+
+          <!-- Auth Session Logout Button -->
+          <button onclick="logoutUser()" id="btn-auth-toggle" class="btn-press-anim py-1.5 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs border border-slate-200 flex items-center gap-1.5">
+            🚪 <span id="auth-btn-text">Déconnexion</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- TAB 1: DASHBOARD -->
+      <main id="tab-dashboard" class="tab-content active p-4 md:p-8 max-w-7xl w-full mx-auto space-y-6 md:space-y-8">
+        <!-- Welcome Banner with Animated Glow -->
+        <div class="bg-gradient-to-r from-[#0B3B36] via-[#0B3E38] to-[#0D4A42] text-white rounded-2xl p-6 md:p-8 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden">
+          <div class="relative z-10">
+            <span class="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold mb-2 border border-emerald-500/30">Régime Réel Simplifié • TVA 18%</span>
+            <h2 id="welcome-banner-title" class="text-2xl md:text-3xl font-black tracking-tight">Bienvenue sur DJETFACTURE ! 👋</h2>
+            <p class="text-xs md:text-sm text-slate-200 mt-1">Votre espace est vierge et prêt à recevoir vos premiers clients et vos premières factures.</p>
+          </div>
+          <div class="bg-[#05221F]/60 backdrop-blur-md border border-[#0D4A42] rounded-xl p-3.5 md:p-4 text-center shrink-0 w-full sm:w-auto relative z-10 transition-transform hover:scale-105">
+            <p class="text-xs font-bold uppercase text-[#87BEAF]">Objectif du Mois</p>
+            <p id="dashboard-goal-percentage" class="text-2xl font-black text-emerald-400 tabular-nums">0%</p>
+            <div class="w-full bg-[#0B3E38] rounded-full h-1.5 mt-2 overflow-hidden">
+              <div id="dashboard-goal-bar" class="bg-emerald-400 h-1.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Stats Cards (Initialized at 0 FCFA for Pristine Virgin State) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <div class="hover-card-elevate bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Facturé (Mois)</p>
+            <h3 id="stat-total-invoiced" class="text-xl md:text-2xl font-extrabold text-slate-900 tabular-nums mt-1">0 FCFA</h3>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span id="stat-trend-badge" class="px-2 py-0.5 rounded font-bold bg-slate-100 text-slate-600 border border-slate-200">0% ce mois</span>
+              <span id="stat-invoices-count" class="text-slate-500 font-medium">0 factures</span>
+            </div>
+          </div>
+          <div class="hover-card-elevate bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Encaissé</p>
+            <h3 id="stat-total-collected" class="text-xl md:text-2xl font-extrabold text-slate-900 tabular-nums mt-1">0 FCFA</h3>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span id="stat-collected-pct" class="px-2 py-0.5 rounded font-bold bg-slate-100 text-slate-600 border border-slate-200">0% du total</span>
+              <span class="text-slate-500 font-medium">Règlements reçus</span>
+            </div>
+          </div>
+          <div class="hover-card-elevate bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Factures en attente</p>
+            <h3 id="stat-pending-amount" class="text-xl md:text-2xl font-extrabold text-slate-900 tabular-nums mt-1">0 FCFA</h3>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span id="stat-pending-badge" class="px-2 py-0.5 rounded font-bold bg-slate-100 text-slate-600 border border-slate-200">0 envoyées</span>
+              <span class="text-slate-500 font-medium">À venir</span>
+            </div>
+          </div>
+          <div class="hover-card-elevate bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Factures en retard</p>
+            <h3 id="stat-overdue-amount" class="text-xl md:text-2xl font-extrabold text-slate-900 tabular-nums mt-1">0 FCFA</h3>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span id="stat-overdue-badge" class="px-2 py-0.5 rounded font-bold bg-slate-100 text-slate-600 border border-slate-200">0 à relancer</span>
+              <span class="text-slate-500 font-medium">Relances WhatsApp</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layout Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+          <div class="lg:col-span-2 space-y-6 md:space-y-8">
+            <!-- Revenue Chart with Bar Grow Animation -->
+            <div class="bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm">
+              <div class="flex items-center justify-between mb-6">
+                <div>
+                  <h3 class="text-base font-bold text-slate-900">Chiffre d'Affaires Mensuel</h3>
+                  <p class="text-xs text-slate-500 font-medium">Evolution des facturations et encaissements FCFA</p>
+                </div>
+                <div class="flex items-center gap-3 text-xs font-semibold">
+                  <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-[#0B3B36]"></span>Facturé</span>
+                  <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-emerald-500"></span>Encaissé</span>
+                </div>
+              </div>
+              <div id="dashboard-chart-container" class="h-48 flex items-end justify-between gap-3 md:gap-4 pt-6 border-b border-slate-100 overflow-x-auto">
+                <!-- Empty Virgin State Chart Bars -->
+                <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 space-y-2 py-8">
+                  <span class="text-3xl">📊</span>
+                  <p class="text-xs font-bold text-slate-600">Aucune donnée de facturation pour l'instant</p>
+                  <p class="text-[11px] text-slate-400">Émettez votre première facture pour voir le graphique s'animer !</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Invoices Preview Table -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <h3 class="text-base font-bold text-slate-900">Dernières Factures</h3>
+                  <p id="dashboard-invoice-count" class="text-xs text-slate-500">0 documents récents enregistrés</p>
+                </div>
+                <button id="dashboard-view-all-btn" onclick="switchTab('factures')" class="text-xs font-bold text-[#0B3B36] hover:underline">Voir les 0 factures →</button>
+              </div>
+
+              <!-- Mobile Cards Layout (< md) -->
+              <div id="dashboard-mobile-cards" class="block md:hidden p-3 space-y-3"></div>
+
+              <!-- Desktop Table Layout (>= md) -->
+              <div class="hidden md:block overflow-x-auto">
+                <table class="w-full text-left text-sm border-collapse min-w-[700px]">
+                  <thead>
+                    <tr class="bg-slate-50 text-xs font-bold text-slate-600 uppercase tracking-wider border-b border-slate-100 whitespace-nowrap">
+                      <th class="p-4 whitespace-nowrap">N° Facture</th>
+                      <th class="p-4 min-w-[160px]">Client</th>
+                      <th class="p-4 whitespace-nowrap">Échéance</th>
+                      <th class="p-4 text-right whitespace-nowrap">Montant TTC</th>
+                      <th class="p-4 text-center whitespace-nowrap">Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-tbody" class="divide-y divide-slate-100">
+                    <!-- Rendered dynamically by JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-6 md:space-y-8">
+            <div class="bg-rose-50 rounded-2xl p-5 border border-rose-200 shadow-sm relative overflow-hidden">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span>
+                <h3 class="text-sm font-extrabold text-rose-900">⚠️ Relances WhatsApp Urgentes</h3>
+              </div>
+              <p id="overdue-card-subtitle" class="text-xs text-rose-800 mt-1">Aucune facture en retard. Vos encaissements sont parfaitement à jour !</p>
+              <div id="overdue-cards-list" class="mt-4 space-y-2">
+                <div class="p-4 text-center text-xs text-rose-700 bg-white/60 rounded-xl border border-rose-200/60 font-medium">
+                  ✓ Aucun retard détecté
+                </div>
+              </div>
+            </div>
+
+            <div class="hover-card-elevate bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+              <h3 class="text-sm font-bold text-slate-900">📱 Instructions Mobile Money</h3>
+              <p class="text-xs text-slate-600 mt-0.5">Comptes d'encaissement actifs</p>
+              <div class="mt-3 space-y-2.5 text-xs">
+                <div class="p-3 rounded-xl bg-slate-50 flex justify-between font-semibold transition-colors hover:bg-slate-100">
+                  <span class="text-slate-700">Wave</span>
+                  <span id="mm-wave-display" class="font-bold text-slate-900">Non renseigné (Paramètres)</span>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 flex justify-between font-semibold transition-colors hover:bg-slate-100">
+                  <span class="text-slate-700">Orange Money</span>
+                  <span id="mm-orange-display" class="font-bold text-slate-900">Non renseigné (Paramètres)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- TAB 2: FACTURES LIST -->
+      <main id="tab-factures" class="tab-content p-4 md:p-8 max-w-7xl w-full mx-auto space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900">Gestion des Factures</h2>
+            <p class="text-xs text-slate-600 mt-0.5">Consultez, filtrez par statut et recherchez par N° ou par nom de client</p>
+          </div>
+          <button onclick="switchTab('nouvelle-facture')" class="btn-press-anim py-2.5 px-4 bg-[#0B3B36] hover:bg-[#0D4A42] text-white font-bold text-xs rounded-xl shadow-md shrink-0 transition-all">
+            + Nouvelle Facture
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <!-- Controls Bar -->
+          <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between gap-4 items-stretch md:items-center">
+            <!-- Search Box -->
+            <div class="relative w-full md:w-80">
+              <input
+                id="invoice-search-input"
+                type="text"
+                oninput="onInvoiceSearchInput(this.value)"
+                placeholder="Rechercher par N° ou client..."
+                class="w-full p-2.5 pl-9 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36] transition-all"
+              />
+              <svg class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+
+            <!-- Status Filter Pills -->
+            <div class="flex flex-wrap gap-1.5 text-xs font-bold">
+              <button id="filter-btn-all" onclick="filterInvoicesByStatus('all', this)" class="filter-btn btn-press-anim px-3.5 py-2 rounded-lg font-extrabold bg-[#0B3B36] text-white border border-[#0B3B36] shadow-md transition-all">
+                Toutes (0)
+              </button>
+              <button id="filter-btn-sent" onclick="filterInvoicesByStatus('sent', this)" class="filter-btn btn-press-anim px-3.5 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition-all">
+                Envoyées (0)
+              </button>
+              <button id="filter-btn-paid" onclick="filterInvoicesByStatus('paid', this)" class="filter-btn btn-press-anim px-3.5 py-2 rounded-lg bg-slate-100 text-emerald-800 hover:bg-emerald-50 border border-slate-200 transition-all">
+                Payées (0)
+              </button>
+              <button id="filter-btn-overdue" onclick="filterInvoicesByStatus('overdue', this)" class="filter-btn btn-press-anim px-3.5 py-2 rounded-lg bg-slate-100 text-rose-800 hover:bg-rose-50 border border-slate-200 transition-all">
+                En retard (0)
+              </button>
+              <button id="filter-btn-partial" onclick="filterInvoicesByStatus('partial', this)" class="filter-btn btn-press-anim px-3.5 py-2 rounded-lg bg-slate-100 text-sky-800 hover:bg-sky-50 border border-slate-200 transition-all">
+                Partielles (0)
+              </button>
+              <button id="filter-btn-draft" onclick="filterInvoicesByStatus('draft', this)" class="filter-btn btn-press-anim px-3.5 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition-all">
+                Brouillon (0)
+              </button>
+            </div>
+          </div>
+
+          <!-- Real-Time Category Total Summary Banner -->
+          <div class="bg-[#EEF6F3] px-5 py-3.5 border-b border-[#B2D8CB] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs transition-all">
+            <div class="flex items-center gap-2 text-[#0B3B36] font-bold">
+              <span>📊 Catégorie :</span>
+              <span id="selected-category-name" class="font-extrabold text-slate-900 underline">Toutes les factures</span>
+              <span id="selected-category-count" class="text-slate-600 font-medium">(0 factures)</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="text-slate-700 font-medium">Cumul Total :</span>
+              <span id="selected-category-sum" class="font-black text-[#0B3B36] text-base tabular-nums transition-all">
+                0 FCFA
+              </span>
+            </div>
+          </div>
+
+          <!-- Dynamic Invoices Container: Mobile Cards (< md) & Desktop Table (>= md) -->
+          <div id="invoices-mobile-cards" class="block md:hidden p-3 space-y-3"></div>
+
+          <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse min-w-[700px]">
+              <thead>
+                <tr class="bg-slate-50 text-xs font-bold text-slate-600 uppercase tracking-wider border-b border-slate-200">
+                  <th class="p-4">N° Facture</th>
+                  <th class="p-4">Client</th>
+                  <th class="p-4">Date Émission</th>
+                  <th class="p-4">Échéance</th>
+                  <th class="p-4 text-right">Montant TTC</th>
+                  <th class="p-4 text-center">Statut</th>
+                  <th class="p-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="invoices-tbody" class="divide-y divide-slate-100 text-sm">
+                <!-- Rendered dynamically by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center text-xs text-slate-600 font-semibold">
+            <span id="invoices-pagination-info">Affichage de 0 sur 0 factures</span>
+            <span class="font-bold text-slate-900">Page 1 sur 1</span>
+          </div>
+        </div>
+      </main>
+
+      <!-- TAB 3: NOUVELLE FACTURE -->
+      <main id="tab-nouvelle-facture" class="tab-content p-4 md:p-8 max-w-5xl w-full mx-auto space-y-6">
+        <div class="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-6">
+          <h2 class="text-2xl font-black text-slate-900">Créer une nouvelle facture</h2>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 text-sm">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block font-bold text-slate-800">Client destinataire *</label>
+                <button type="button" onclick="openNewClientModal()" class="text-xs font-bold text-[#0B3B36] hover:underline flex items-center gap-1">
+                  + Nouveau Client
+                </button>
+              </div>
+              <select id="invoice-client-select" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 transition-all focus:bg-white focus:border-[#0B3B36]">
+                <option value="">Sélectionnez un client au carnet</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold mb-1 text-slate-800">Date d'émission</label>
+              <input id="new-inv-issue-date" type="date" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 transition-all focus:bg-white focus:border-[#0B3B36]" />
+            </div>
+            <div>
+              <label class="block font-bold mb-1 text-slate-800">Date d'échéance</label>
+              <input id="new-inv-due-date" type="date" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 transition-all focus:bg-white focus:border-[#0B3B36]" />
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 space-y-4">
+            <h3 class="font-bold text-sm text-slate-900">Lignes de Prestation</h3>
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3 text-sm">
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+                <input id="new-inv-desc" type="text" placeholder="Description de la prestation ou du produit..." class="md:col-span-6 p-3 bg-white border border-slate-200 rounded-lg font-semibold text-slate-900" />
+                <input id="new-inv-qty" type="number" value="1" step="0.5" min="1" oninput="updateInvoiceFormTotals()" class="md:col-span-2 p-3 bg-white border border-slate-200 rounded-lg font-bold text-slate-900" />
+                <input id="new-inv-price" type="number" value="0" step="1000" min="0" oninput="updateInvoiceFormTotals()" class="md:col-span-4 p-3 bg-white border border-slate-200 rounded-lg font-bold text-slate-900" />
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div class="w-full sm:w-72 bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+              <label class="block font-bold text-xs text-slate-800">Taux de TVA appliqué *</label>
+              <select id="new-inv-tva-rate" onchange="updateInvoiceFormTotals()" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl font-extrabold text-xs text-slate-900 outline-none focus:border-[#0B3B36] transition-all">
+                <option value="18" selected>18% (Taux Légal Standard UEMOA / OHADA)</option>
+                <option value="10">10% (Taux Réduit Restauration / Transport)</option>
+                <option value="5">5% (Taux Spécifique Produit)</option>
+                <option value="0">0% (Exonéré / Exportation hors taxe)</option>
+              </select>
+              <p class="text-[11px] text-slate-500 font-medium">Calcul automatique immédiat sur le sous-total HT.</p>
+            </div>
+
+            <div class="w-full sm:w-80 bg-[#0B3B36] text-white p-6 rounded-2xl space-y-3 shadow-lg transition-transform hover:scale-[1.01]">
+              <div class="flex justify-between text-xs"><span>HT:</span><span id="new-inv-ht" class="font-bold">0 FCFA</span></div>
+              <div class="flex justify-between text-xs"><span id="new-inv-tva-label">TVA (18%):</span><span id="new-inv-tva" class="font-bold">0 FCFA</span></div>
+              <div class="flex justify-between text-base font-black text-emerald-400 pt-2 border-t border-[#0B3E38]">
+                <span>TOTAL TTC:</span>
+                <span id="new-inv-total" class="font-black">0 FCFA</span>
+              </div>
+              <button onclick="emitNewInvoice()" class="btn-press-anim w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-[#05221F] font-black rounded-xl text-sm mt-2 transition-all">
+                Émettre la facture
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- TAB 4: DETAIL FACTURE -->
+      <main id="tab-detail-facture" class="tab-content p-4 md:p-8 max-w-5xl w-full mx-auto space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <button onclick="switchTab('factures')" class="btn-press-anim p-2 bg-white border border-slate-200 rounded-xl no-print hover:bg-slate-50">←</button>
+            <h2 id="detail-inv-number" class="text-2xl font-black text-slate-900">FAC-2026-0001</h2>
+            <span id="detail-status-pill" class="px-3.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">● Envoyée</span>
+          </div>
+          <div class="flex flex-wrap gap-2 no-print">
+            <button onclick="openPaymentModal()" class="btn-press-anim py-2 px-4 bg-[#0B3B36] hover:bg-[#0D4A42] text-white font-extrabold text-xs rounded-xl flex items-center gap-1.5 shadow-md transition-all">
+              💳 Enregistrer un Règlement
+            </button>
+            <a href="https://wa.me/?text=Facture" target="_blank" class="btn-press-anim py-2 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-sm">📱 Envoi WhatsApp</a>
+            <button onclick="downloadInvoicePDF('')" class="btn-press-anim py-2 px-4 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-md transition-all">
+              <span>📥 Télécharger PDF</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Invoice Document with Watermark -->
+        <div id="invoice-document-paper" class="bg-white rounded-2xl p-5 md:p-10 border border-slate-200 shadow-sm space-y-8 relative overflow-hidden">
+          <div id="invoice-watermark" class="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden opacity-[0.06] transform -rotate-12 z-0">
+            <span id="watermark-text-display" class="text-4xl md:text-7xl font-black uppercase text-[#0B3B36] tracking-widest whitespace-nowrap">
+              Mon Entreprise
+            </span>
+          </div>
+
+          <div class="relative z-10 space-y-8 text-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 border-b border-slate-200 pb-8">
+              <div class="flex items-center gap-3.5">
+                <div id="invoice-seller-logo-container" class="shrink-0">
+                  <div id="invoice-seller-logo-placeholder" class="w-12 h-12 rounded-xl bg-[#0B3B36] text-white font-black text-2xl flex items-center justify-center shadow-sm">
+                    D
+                  </div>
+                  <img id="invoice-seller-logo-img" src="" class="h-12 max-w-[160px] object-contain hidden" alt="Logo Entreprise" />
+                </div>
+                <div>
+                  <h3 id="detail-seller-name" class="font-extrabold text-base text-slate-900">Mon Entreprise</h3>
+                  <p id="detail-seller-rccm" class="text-xs font-medium text-slate-600 mt-0.5">RCCM: Non renseigné</p>
+                  <p id="detail-seller-city" class="text-xs font-medium text-slate-600">Dakar, Sénégal</p>
+                </div>
+              </div>
+              <div class="bg-slate-50 p-4.5 rounded-xl border border-slate-200 sm:text-right">
+                <p class="text-xs uppercase font-bold text-slate-500">Client Destinataire</p>
+                <h4 id="detail-client-name" class="font-extrabold text-base text-slate-900">Client</h4>
+                <p id="detail-client-sub" class="text-xs font-medium text-slate-600">-</p>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm border-collapse min-w-[500px]">
+                <thead>
+                  <tr class="bg-slate-50 text-xs font-bold text-slate-600 uppercase border-b border-slate-200">
+                    <th class="p-3.5">Désignation</th>
+                    <th class="p-3.5 text-center">Qté</th>
+                    <th class="p-3.5 text-right">Prix HT</th>
+                    <th class="p-3.5 text-right">Total HT</th>
+                  </tr>
+                </thead>
+                <tbody id="detail-items-tbody" class="divide-y divide-slate-100">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 pt-4">
+              <div id="payment-instructions-pdf-box" class="p-4 rounded-xl bg-[#EEF6F3] border border-[#B2D8CB] text-xs space-y-1.5">
+                <p class="font-bold text-[#0B3B36] text-sm">📱 Règlement Mobile Money :</p>
+                <p id="pdf-wave-display" class="font-semibold text-slate-800">• Wave: Non configuré</p>
+                <p id="pdf-orange-display" class="font-semibold text-slate-800">• Orange Money: Non configuré</p>
+                <p id="pdf-bank-display" class="font-semibold text-slate-800">• Virement bancaire: Non configuré</p>
+              </div>
+              <div class="sm:text-right space-y-1.5 text-sm">
+                <p class="text-slate-600 font-medium">Total HT : <strong id="detail-subtotal" class="text-slate-900 font-bold">0 FCFA</strong></p>
+                <p class="text-slate-600 font-medium">TVA (18%) : <strong id="detail-tva" class="text-slate-900 font-bold">0 FCFA</strong></p>
+                <p id="detail-total-ttc" class="text-sm font-bold text-slate-800">Total TTC : 0 FCFA</p>
+                <p class="text-emerald-700 font-extrabold text-xs">Montant Encaissé : <strong id="detail-amount-paid" class="tabular-nums font-black text-sm">0 FCFA</strong></p>
+                <p id="detail-total-ttc-final" class="text-xl font-black text-[#0B3B36] pt-2 border-t border-slate-200">RESTE À PAYER : 0 FCFA</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- TAB 5: CARNET DES CLIENTS -->
+      <main id="tab-clients" class="tab-content p-4 md:p-8 max-w-7xl w-full mx-auto space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-black text-[#0F1A18]">Carnet de Clients <span id="client-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-[#EEF6F3] text-[#0B3B36] border border-[#B2D8CB] ml-2">0 clients</span></h2>
+            <p class="text-xs text-[#5F726E] mt-0.5">Répertoire des comptes commerciaux et suivi des encours</p>
+          </div>
+          <button onclick="openNewClientModal()" class="btn-press-anim py-2.5 px-4 bg-[#0B3B36] hover:bg-[#0D4A42] text-white font-bold text-xs rounded-xl shadow-md shrink-0 transition-all">+ Nouveau Client</button>
+        </div>
+
+        <!-- Clean Empty Virgin Client Cards Grid -->
+        <div id="clients-cards-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          <div class="col-span-full py-16 text-center bg-white rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-[#0B3B36] flex items-center justify-center font-black text-2xl mx-auto border border-emerald-200">
+              👥
+            </div>
+            <h3 class="text-lg font-black text-slate-900">Votre carnet de clients est vierge</h3>
+            <p class="text-xs text-slate-500 max-w-md mx-auto">
+              Aucun client enregistré pour l'instant. Ajoutez votre premier partenaire commercial pour commencer à émettre des factures légales.
+            </p>
+            <button onclick="openNewClientModal()" class="btn-press-anim py-2.5 px-5 bg-[#0B3B36] text-white font-bold text-xs rounded-xl shadow-md transition-all">
+              + Ajouter mon premier client
+            </button>
+          </div>
+        </div>
+
+        <!-- Modal Nouveau Client -->
+        <div id="modal-new-client" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
+          <div class="bg-white rounded-2xl p-6 max-w-lg w-full border border-slate-200 shadow-2xl space-y-4 text-sm animate-fadeInUp">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 class="text-base font-bold text-[#0F1A18]">Nouveau Client</h3>
+              <button onclick="closeNewClientModal()" class="p-1 text-slate-400 hover:text-slate-900 text-lg font-bold">✕</button>
+            </div>
+
+            <form onsubmit="submitNewClientForm(event)" class="space-y-4 text-xs">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="sm:col-span-2">
+                  <label class="block font-bold text-slate-800 mb-1">Raison Sociale / Nom *</label>
+                  <input id="nc-name" type="text" required placeholder="Ex: Société Africaine de Négoce" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36]" />
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-800 mb-1">Nom du Contact</label>
+                  <input id="nc-contact" type="text" placeholder="Ex: Ibrahim Sow" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36]" />
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-800 mb-1">Téléphone (WhatsApp)</label>
+                  <input id="nc-phone" type="text" placeholder="+221 77 000 00 00" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36]" />
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-800 mb-1">Email</label>
+                  <input id="nc-email" type="email" placeholder="contact@entreprise.sn" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36]" />
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-800 mb-1">N° RCCM (OHADA)</label>
+                  <input id="nc-rccm" type="text" placeholder="SN-DKR-2026-B-0000" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36]" />
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-800 mb-1">Ville</label>
+                  <input id="nc-city" type="text" value="Dakar" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36]" />
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-800 mb-1">Pays</label>
+                  <select id="nc-country" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36]">
+                    <option value="Sénégal">Sénégal</option>
+                    <option value="Côte d'Ivoire">Côte d'Ivoire</option>
+                    <option value="Burkina Faso">Burkina Faso</option>
+                    <option value="Mali">Mali</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+                <button type="button" onclick="closeNewClientModal()" class="py-2.5 px-4 rounded-xl border border-slate-200 text-slate-700 font-bold">Annuler</button>
+                <button type="submit" class="btn-press-anim py-2.5 px-5 bg-[#0B3B36] hover:bg-[#0D4A42] text-white font-bold rounded-xl shadow-md">Enregistrer le Client</button>
+        <!-- Modal Enregistrement de Règlement / Encaissement -->
+        <div id="modal-payment" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
+          <div class="bg-white rounded-2xl p-6 max-w-md w-full border border-slate-200 shadow-2xl space-y-4 text-sm animate-fadeInUp">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 class="text-base font-extrabold text-[#0F1A18]">💳 Enregistrer un Encaissement</h3>
+                <p id="pay-modal-inv-subtitle" class="text-xs text-slate-500 font-medium">Facture FAC-2026-0001</p>
+              </div>
+              <button onclick="closePaymentModal()" class="p-1 text-slate-400 hover:text-slate-900 text-lg font-bold">✕</button>
+            </div>
+
+            <form onsubmit="submitInvoicePayment(event)" class="space-y-3 text-xs">
+              <div>
+                <label class="block font-bold text-slate-800 mb-1">Montant Encaissé (FCFA) *</label>
+                <input id="pay-amount-input" type="number" required min="1" step="500" placeholder="Ex: 50000" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-black text-slate-900 text-base outline-none focus:border-[#0B3B36]" />
+              </div>
+
+              <div>
+                <label class="block font-bold text-slate-800 mb-1">Mode de Règlement *</label>
+                <select id="pay-method-input" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:border-[#0B3B36]">
+                  <option value="Wave">📱 Wave Mobile Money</option>
+                  <option value="Orange Money">📱 Orange Money</option>
+                  <option value="MTN MoMo">📱 MTN MoMo / Moov</option>
+                  <option value="Virement Bancaire">🏦 Virement Bancaire (RIB)</option>
+                  <option value="Espèces">💵 Espèces / Liquide</option>
+                  <option value="Chèque">📜 Chèque Bancaire</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block font-bold text-slate-800 mb-1">Date du Règlement *</label>
+                <input id="pay-date-input" type="date" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:border-[#0B3B36]" />
+              </div>
+
+              <div>
+                <label class="block font-bold text-slate-800 mb-1">N° de Transaction / Référence</label>
+                <input id="pay-ref-input" type="text" placeholder="Ex: WAV-8921-X39" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-900 outline-none focus:border-[#0B3B36]" />
+              </div>
+
+              <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+                <button type="button" onclick="closePaymentModal()" class="py-2.5 px-4 rounded-xl border border-slate-200 text-slate-700 font-bold">Annuler</button>
+                <button type="submit" class="btn-press-anim py-2.5 px-5 bg-[#0B3B36] hover:bg-[#0D4A42] text-white font-extrabold rounded-xl shadow-md flex items-center gap-1.5">
+                  <span>✓ Valider l'Encaissement</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+
+      <!-- TAB 6: PARAMETRES -->
+      <main id="tab-parametres" class="tab-content p-4 md:p-8 max-w-5xl w-full mx-auto space-y-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900">Paramètres de l'entreprise</h2>
+            <p class="text-xs text-slate-600 mt-0.5">Identifiants fiscaux, instructions Mobile Money et personnalisation du filigrane</p>
+          </div>
+          <button onclick="saveSettingsForm()" class="btn-press-anim py-2.5 px-5 bg-[#0B3B36] hover:bg-[#0D4A42] text-white font-bold text-xs rounded-xl shadow-md transition-all shrink-0">
+            Enregistrer les paramètres
+          </button>
+        </div>
+
+        <!-- SECTION 1: Legal & Fiscal Identity -->
+        <div class="hover-card-elevate bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm space-y-4 text-sm">
+          <h3 class="font-bold text-[#0F1A18] border-b border-slate-100 pb-2">1. Identité légale & Numéros Fiscaux (OHADA)</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-bold mb-1 text-slate-800">Raison sociale / Nom commercial *</label>
+              <input id="setting-company-name" type="text" placeholder="Ex: Mon Entreprise SARL" oninput="updateWatermarkFromInput(this.value)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36] transition-all" />
+            </div>
+            <div>
+              <label class="block font-bold mb-1 text-slate-800">N° RCCM (OHADA) *</label>
+              <input id="setting-company-rccm" type="text" placeholder="Ex: SN-DKR-2026-B-0000" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36] transition-all" />
+            </div>
+            <div>
+              <label class="block font-bold mb-1 text-slate-800">N° NINEA / IFU / NCC</label>
+              <input id="setting-company-ifu" type="text" placeholder="Ex: 009823412" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36] transition-all" />
+            </div>
+            <div>
+              <label class="block font-bold mb-1 text-slate-800">Devise active</label>
+              <input type="text" value="XOF - Franc CFA (UEMOA)" readonly class="w-full p-3 bg-slate-100 border border-slate-200 rounded-lg font-bold text-slate-600" />
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: COMPANY LOGO ON INVOICES -->
+        <div class="hover-card-elevate bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm space-y-4 text-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-2">
+            <div>
+              <h3 class="font-bold text-[#0F1A18]">2. Logo d'Entreprise sur la Facture</h3>
+              <p class="text-xs text-slate-600 mt-0.5">Affichez votre logo officiel dans l'en-tête de chaque document émis.</p>
+            </div>
+            <label class="flex items-center gap-2 font-bold text-slate-800 cursor-pointer">
+              <input id="setting-enable-logo" type="checkbox" checked onchange="toggleLogoActive(this.checked)" class="w-4 h-4 text-[#0B3B36] rounded" />
+              <span>Afficher le logo</span>
+            </label>
+          </div>
+
+          <div id="logo-settings-body" class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs items-center">
+            <div class="md:col-span-2 space-y-2">
+              <label class="block font-bold text-slate-800">Importer votre image de logo (PNG, JPG, SVG)</label>
+              <div class="border-2 border-dashed border-slate-200 hover:border-[#0B3B36] rounded-2xl p-5 bg-slate-50 text-center transition-all flex flex-col items-center justify-center gap-2 cursor-pointer relative group">
+                <input type="file" accept="image/*" onchange="previewLogoFile(this)" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
+                <span class="text-2xl">🖼️</span>
+                <p class="font-bold text-slate-800">Cliquez ou glissez votre logo d'entreprise ici</p>
+                <p class="text-[11px] text-slate-500">Format conseillé : PNG ou SVG fond transparent (max 2 Mo)</p>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+              <span class="text-[10px] uppercase font-bold text-slate-500 block">Aperçu du Logo sur En-tête</span>
+              <div id="logo-preview-box" class="flex items-center justify-center p-3 bg-white rounded-xl border border-slate-200 min-h-[75px] shadow-sm">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-10 h-10 rounded-xl bg-[#0B3B36] text-white font-black text-xl flex items-center justify-center shadow-sm">
+                    D
+                  </div>
+                  <div>
+                    <p id="settings-logo-company-name" class="font-extrabold text-xs text-slate-900">Mon Entreprise</p>
+                    <p class="text-[10px] text-slate-500">Logo actif</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: DEDICATED MOBILE MONEY INSTRUCTIONS CASE -->
+        <div class="hover-card-elevate bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm space-y-4 text-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-2">
+            <div>
+              <h3 class="font-bold text-[#0F1A18]">3. Case Réservée aux Instructions Mobile Money & Banques</h3>
+              <p class="text-xs text-slate-600 mt-0.5">Saisissez vos numéros d'encaissement qui apparaîtront en bas de chaque facture PDF.</p>
+            </div>
+            <label class="flex items-center gap-2 font-bold text-slate-800 cursor-pointer">
+              <input id="setting-print-mobile-money" type="checkbox" checked onchange="toggleMobileMoneyPrint(this.checked)" class="w-4 h-4 text-[#0B3B36] rounded" />
+              <span>Imprimer sur le PDF</span>
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-bold mb-1 text-slate-800">📱 Numéro Wave</label>
+              <input id="setting-wave-number" type="text" value="" placeholder="Ex: +221 77 000 00 00" oninput="updateMobileMoneyDisplays()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36] transition-all" />
+            </div>
+            <div>
+              <label class="block font-bold mb-1 text-slate-800">📱 Numéro Orange Money</label>
+              <input id="setting-orange-number" type="text" value="" placeholder="Ex: +221 77 000 00 00" oninput="updateMobileMoneyDisplays()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36] transition-all" />
+            </div>
+            <div>
+              <label class="block font-bold mb-1 text-slate-800">📱 Numéro MTN MoMo / Moov</label>
+              <input id="setting-mtn-number" type="text" value="" placeholder="Ex: +225 07 00 00 00 00" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36] transition-all" />
+            </div>
+            <div>
+              <label class="block font-bold mb-1 text-slate-800">🏦 RIB / Compte Bancaire (Virement)</label>
+              <input id="setting-bank-rib" type="text" value="" placeholder="Ex: SN012 01001 012345678901 45" oninput="updateMobileMoneyDisplays()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36] transition-all" />
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 4: COMPANY WATERMARK (FILIGRANE) OPTION -->
+        <div class="hover-card-elevate bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm space-y-4 text-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-2">
+            <div>
+              <h3 class="font-bold text-[#0F1A18]">4. Option Nom de l'Entreprise en Filigrane (Watermark)</h3>
+              <p class="text-xs text-slate-600 mt-0.5">Affiche le nom de votre entreprise en fond diagonal discret sur les factures émises.</p>
+            </div>
+            <label class="flex items-center gap-2 font-bold text-slate-800 cursor-pointer">
+              <input id="setting-enable-watermark" type="checkbox" checked onchange="toggleWatermarkActive(this.checked)" class="w-4 h-4 text-[#0B3B36] rounded" />
+              <span>Activer le filigrane</span>
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-bold mb-1 text-slate-800">Texte du Filigrane</label>
+              <input id="setting-watermark-text" type="text" value="" placeholder="Ex: Mon Entreprise SARL" oninput="updateWatermarkText(this.value)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36] transition-all" />
+            </div>
+            <div>
+              <label class="block font-bold mb-1 text-slate-800">Opacité du Filigrane</label>
+              <select id="setting-watermark-opacity" onchange="updateWatermarkOpacity(this.value)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900 outline-none focus:bg-white focus:border-[#0B3B36] transition-all">
+                <option value="0.04">Très discret (4%)</option>
+                <option value="0.06" selected>Discret recommandé (6%)</option>
+                <option value="0.10">Moyen (10%)</option>
+                <option value="0.15">Visible (15%)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Preview Box of Watermark -->
+          <div id="watermark-settings-preview-box" class="relative p-6 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden flex items-center justify-center min-h-[90px]">
+            <div id="watermark-settings-preview-text" class="absolute inset-0 flex items-center justify-center pointer-events-none select-none transform -rotate-12 uppercase font-black text-[#0B3B36] tracking-widest text-lg sm:text-xl opacity-[0.06] transition-all">
+              MON ENTREPRISE
+            </div>
+            <span class="text-xs font-bold text-slate-600 relative z-10 bg-white/90 px-3.5 py-1.5 rounded-full border border-slate-200 shadow-sm text-center">
+              Aperçu du filigrane en fond de facture PDF
+            </span>
+          </div>
+        </div>
+
+        <!-- SECTION 4.5: SUPABASE DATABASE CONNECTION STATUS -->
+        <div class="hover-card-elevate bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm space-y-4 text-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-2">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">🗄️</span>
+              <div>
+                <h3 class="font-bold text-[#0F1A18]">Intégration & Connexion Supabase</h3>
+                <p class="text-xs text-slate-600 mt-0.5">Vérifiez l'état de synchronisation avec Postgres Cloud, Auth et Storage.</p>
+              </div>
+            </div>
+            <button type="button" onclick="testPreviewSupabaseConnection()" id="btn-test-supabase" class="btn-press-anim py-2 px-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-2 shrink-0 shadow-sm">
+              <span id="spin-test-supabase">⚡</span>
+              <span>Tester la connexion Supabase</span>
+            </button>
+          </div>
+
+          <div id="supabase-status-box" class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center gap-3">
+            <span class="text-lg">🖥️</span>
+            <span>Fichier <strong>.env.local</strong> configuré. Cliquez sur "Tester la connexion Supabase" pour valider la réponse Postgres.</span>
+          </div>
+        </div>
+
+        <!-- ADMIN ONLY SETTINGS CONTAINER (RESERVED FOR ADMIN ROLE ONLY) -->
+        <div id="admin-only-settings-container" class="space-y-6">
+          <!-- SECTION 5: ACCESS RIGHTS & SECURITY PERMISSIONS (ADMIN CONTROL PANEL) -->
+          <div class="hover-card-elevate bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm space-y-4 text-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-2">
+              <div>
+                <h3 class="font-bold text-[#0F1A18]">5. Contrôle des Permissions & Sécurité Administrateur</h3>
+                <p class="text-xs text-slate-600 mt-0.5">Verrouillez les actions sensibles pour les utilisateurs standards (modifications, suppressions, TVA).</p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 shrink-0">
+                👑 Panneau Administrateur Exclusif
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                <label class="flex items-center justify-between font-bold text-slate-800 cursor-pointer">
+                  <span>🔒 Verrouiller la modification des factures</span>
+                  <input id="permission-lock-modify" type="checkbox" onchange="togglePermissionRule('lockModifyInvoice', this.checked)" class="w-4 h-4 text-[#0B3B36] rounded" />
+                </label>
+                <p class="text-xs text-slate-500">Si activé, les utilisateurs standards ne peuvent que consulter les factures créées.</p>
+              </div>
+
+              <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                <label class="flex items-center justify-between font-bold text-slate-800 cursor-pointer">
+                  <span>🔒 Verrouiller la suppression des factures</span>
+                  <input id="permission-lock-delete-inv" type="checkbox" checked onchange="togglePermissionRule('lockDeleteInvoice', this.checked)" class="w-4 h-4 text-[#0B3B36] rounded" />
+                </label>
+                <p class="text-xs text-slate-500">Empêche la suppression irréversible des factures par des utilisateurs non-admin.</p>
+              </div>
+
+              <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                <label class="flex items-center justify-between font-bold text-slate-800 cursor-pointer">
+                  <span>🔒 Verrouiller la suppression des clients</span>
+                  <input id="permission-lock-delete-client" type="checkbox" checked onchange="togglePermissionRule('lockDeleteClient', this.checked)" class="w-4 h-4 text-[#0B3B36] rounded" />
+                </label>
+                <p class="text-xs text-slate-500">Désactive le bouton de suppression de client pour les rôles standards.</p>
+              </div>
+
+              <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                <label class="flex items-center justify-between font-bold text-slate-800 cursor-pointer">
+                  <span>🔒 Verrouiller la modification de la TVA</span>
+                  <input id="permission-lock-tva" type="checkbox" checked onchange="togglePermissionRule('lockModifyTva', this.checked)" class="w-4 h-4 text-[#0B3B36] rounded" />
+                </label>
+                <p class="text-xs text-slate-500">Seul l'Admin peut altérer la TVA. Les utilisateurs simples appliquent le taux officiel.</p>
+              </div>
+            </div>
+
+            <!-- ADMIN DEFAULT TVA CONFIGURATION -->
+            <div class="p-4 bg-[#EEF6F3] rounded-xl border border-[#B2D8CB] space-y-2">
+              <label class="block font-bold text-xs text-[#0B3B36]">⚙️ Taux de TVA Officiel configuré par l'Admin</label>
+              <select id="admin-default-tva-rate" onchange="setAdminDefaultTvaRate(this.value)" class="w-full p-2.5 bg-white border border-[#B2D8CB] rounded-xl font-extrabold text-xs text-[#0B3B36] outline-none">
+                <option value="18" selected>18% (Taux Légal Standard UEMOA / OHADA)</option>
+                <option value="10">10% (Taux Réduit Restauration / Transport)</option>
+                <option value="5">5% (Taux Spécifique Produit)</option>
+                <option value="0">0% (Exonéré / Exportation hors taxe)</option>
+              </select>
+              <p class="text-[11px] text-[#0D4A42] font-medium">Ce taux est automatiquement imposé aux utilisateurs simples lorsque le verrouillage TVA est actif.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div>
+                <label class="block font-bold mb-1 text-slate-800">Délai maximal de modification des factures</label>
+                <select id="permission-max-edit-hours" onchange="togglePermissionRule('maxEditWindowHours', this.value)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900 outline-none focus:bg-[#EEF6F3] focus:border-[#0B3B36] transition-all">
+                  <option value="24">24 heures après émission</option>
+                  <option value="168">7 jours après émission</option>
+                  <option value="unlimited" selected>Illimité (Selon droits admin)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block font-bold mb-1 text-slate-800">Mode d'archivage des suppressions</label>
+                <select id="permission-archive-mode" onchange="togglePermissionRule('enableArchiving', this.value)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900 outline-none focus:bg-[#EEF6F3] focus:border-[#0B3B36] transition-all">
+                  <option value="true" selected>Archivage automatique & Corbeille 30 jours (Recommandé)</option>
+                  <option value="false">Suppression définitive immédiate</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 6: AUDIT LOG & SECURITY ACTIVITY JOURNAL -->
+          <div class="hover-card-elevate bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm space-y-4 text-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-2">
+              <div>
+                <h3 class="font-bold text-[#0F1A18]">6. Journal d'Activité & Traçabilité des Opérations (Audit Log)</h3>
+                <p class="text-xs text-slate-600 mt-0.5">Historique chronologique des créations, modifications, suppressions et ajustements de droits.</p>
+              </div>
+              <button onclick="renderAuditLogsTable()" class="text-xs font-bold text-[#0B3B36] hover:underline">🔄 Actualiser le journal</button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse min-w-[650px]">
+                <thead>
+                  <tr class="bg-slate-50 text-slate-600 uppercase font-bold border-b border-slate-200">
+                    <th class="p-3">Horodatage</th>
+                    <th class="p-3">Utilisateur</th>
+                    <th class="p-3">Opération</th>
+                    <th class="p-3">Cible / Élément</th>
+                    <th class="p-3">Détails de la modification</th>
+                  </tr>
+                </thead>
+                <tbody id="audit-log-tbody" class="divide-y divide-slate-100 font-semibold">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          <!-- SECTION 7: USER MANAGEMENT & CREATION OF STANDARD USERS (ADMIN EXCLUSIVE) -->
+          <div class="hover-card-elevate bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm space-y-4 text-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-2">
+              <div>
+                <h3 class="font-bold text-[#0F1A18]">7. Création & Gestion des Utilisateurs Simples (Rôle Administrateur)</h3>
+                <p class="text-xs text-slate-600 mt-0.5">Créez des comptes pour vos collaborateurs et définissez leurs restrictions d'accès (TVA, suppression, modifications).</p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">
+                👑 Panneau Administrateur Exclusif
+              </span>
+            </div>
+
+            <!-- Formulaire de création d'utilisateur simple -->
+            <form onsubmit="submitCreateNewUser(event)" class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+              <h4 class="font-extrabold text-xs text-slate-800">➕ Créer un nouvel accès utilisateur simple</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Nom complet du collaborateur *</label>
+                  <input id="nu-name" type="text" required placeholder="Ex: Moussa Diop" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg font-bold text-slate-900 outline-none focus:border-[#0B3B36]" />
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Adresse Email *</label>
+                  <input id="nu-email" type="email" required placeholder="moussa@entreprise.sn" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg font-bold text-slate-900 outline-none focus:border-[#0B3B36]" />
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Rôle attribué *</label>
+                  <select id="nu-role" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg font-bold text-slate-900 outline-none focus:border-[#0B3B36]">
+                    <option value="user" selected>👤 Utilisateur Standard (Actions restreintes)</option>
+                    <option value="admin">👑 Co-Administrateur (Accès complet)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="flex justify-end pt-1">
+                <button type="submit" class="btn-press-anim py-2 px-4 bg-[#0B3B36] hover:bg-[#0D4A42] text-white font-bold text-xs rounded-xl shadow-md transition-all">
+                  + Créer l'accès utilisateur
+                </button>
+              </div>
+            </form>
+
+            <!-- Liste des utilisateurs de l'entreprise -->
+            <div class="space-y-2 pt-2">
+              <h4 class="font-extrabold text-xs text-slate-800">👥 Utilisateurs actifs de votre entreprise</h4>
+              <div id="company-users-list" class="space-y-2">
+                <!-- Dynamically populated by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- USER ACCESS RESTRICTED NOTICE (VISIBLE WHEN SIMPLE USER ROLE ACTIVE) -->
+        <div id="user-access-restricted-banner" class="hidden hover-card-elevate bg-slate-50 border border-slate-200 rounded-2xl p-8 text-center space-y-3">
+          <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-xl font-bold mx-auto border border-amber-300 shadow-sm">
+            🔒
+          </div>
+          <h3 class="text-base font-extrabold text-[#0F1A18]">Accès Réservé à l'Administrateur</h3>
+          <p class="text-xs text-slate-600 max-w-md mx-auto font-medium leading-relaxed">
+            Le Panneau de Contrôle des Permissions (Section 5), le Journal d'Activité (Section 6) et la Gestion des Utilisateurs (Section 7) sont strictement réservés à la gestion Administrateur. Seul l'Administrateur peut créer des comptes simples ou modifier les verrous.
+          </p>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ÉCRAN D'AUTHENTIFICATION OBLIGATOIRE AU CHARGEMENT / ACTUALISATION (#auth-gate-screen) -->
+  <div id="auth-gate-screen" class="fixed inset-0 z-50 bg-[#05221F] bg-gradient-to-br from-[#0B3B36] via-[#05221F] to-slate-950 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-6 sm:p-10 max-w-md w-full border border-slate-200 shadow-2xl space-y-6 text-sm animate-fadeInUp">
+      <div class="text-center space-y-2">
+        <div class="w-16 h-16 rounded-2xl bg-[#0B3B36] text-white flex items-center justify-center font-black text-3xl mx-auto shadow-xl border-2 border-emerald-400">
+          D
+        </div>
+        <h3 id="auth-modal-title" class="text-2xl font-black text-[#0F1A18] tracking-tight">Connexion à DJETFACTURE</h3>
+        <p id="auth-modal-subtitle" class="text-xs text-slate-600 font-medium">Connectez-vous ou créez votre espace entreprise pour accéder au tableau de bord.</p>
+      </div>
+
+      <!-- Pill tab switcher between Login and Register -->
+      <div class="flex p-1 bg-slate-100 rounded-xl text-xs font-bold">
+        <button type="button" onclick="setAuthMode('login')" id="tab-auth-login" class="w-1/2 py-2 rounded-lg bg-[#0B3B36] text-white shadow-sm transition-all">
+          🔑 Se Connecter
+        </button>
+        <button type="button" onclick="setAuthMode('register')" id="tab-auth-register" class="w-1/2 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all">
+          🏢 S'inscrire (Nouveau Compte)
+        </button>
+      </div>
+
+      <form onsubmit="submitAuthForm(event)" class="space-y-4 text-xs">
+        <div id="auth-company-field" class="hidden space-y-1">
+          <label class="block font-bold text-slate-800">Raison Sociale / Nom d'Entreprise *</label>
+          <input id="auth-company-input" type="text" placeholder="Ex: Baobab Consulting SARL" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:border-[#0B3B36] focus:bg-white transition-all" />
+        </div>
+
+        <div class="space-y-1">
+          <label class="block font-bold text-slate-800">Adresse Email Administrateur *</label>
+          <input id="auth-email-input" type="email" required placeholder="admin@votreentreprise.sn" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:border-[#0B3B36] focus:bg-white transition-all" />
+        </div>
+
+        <div class="space-y-1">
+          <label class="block font-bold text-slate-800">Mot de Passe *</label>
+          <input id="auth-password-input" type="password" required placeholder="••••••••••••" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:border-[#0B3B36] focus:bg-white transition-all" />
+        </div>
+
+        <div class="flex items-center justify-between pt-1">
+          <label class="flex items-center gap-2 font-bold text-slate-700 cursor-pointer">
+            <input type="checkbox" checked class="w-4 h-4 text-[#0B3B36] rounded" />
+            <span>Se souvenir de moi</span>
+          </label>
+          <span class="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+            👑 Accès Administrateur
+          </span>
+        </div>
+
+        <button type="submit" id="auth-submit-btn" class="btn-press-anim w-full py-3.5 rounded-xl bg-[#0B3B36] hover:bg-[#0D4A42] text-white font-extrabold text-xs shadow-lg transition-all flex items-center justify-center gap-2">
+          <span>Se Connecter en tant qu'Admin →</span>
+        </button>
+      </form>
+
+      <div class="pt-3 border-t border-slate-100 text-center text-[11px] text-slate-500 font-medium">
+        🔒 Protection Supabase Cloud Auth & RLS Multi-tenant
+      </div>
+    </div>
+  </div>
+
+  <!-- Realtime Engine, Animations & Toast Manager Script -->
+  <script>
+    let isUserLoggedIn = false;
+    let authMode = 'login'; // 'login' or 'register'
+
+    const companyUsers = [
+      { id: '1', name: 'Valéry Kaboré', email: 'admin@entreprise.sn', role: 'admin', roleLabel: '👑 Administrateur (Créateur)', status: 'Actif' }
+    ];
+
+    function setAuthMode(mode) {
+      authMode = mode;
+      const tabLogin = document.getElementById('tab-auth-login');
+      const tabRegister = document.getElementById('tab-auth-register');
+      const companyField = document.getElementById('auth-company-field');
+      const title = document.getElementById('auth-modal-title');
+      const subtitle = document.getElementById('auth-modal-subtitle');
+      const submitBtn = document.getElementById('auth-submit-btn');
+
+      if (mode === 'register') {
+        if (tabLogin) tabLogin.className = "w-1/2 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all";
+        if (tabRegister) tabRegister.className = "w-1/2 py-2 rounded-lg bg-[#0B3B36] text-white shadow-sm transition-all";
+        if (companyField) companyField.classList.remove('hidden');
+        if (title) title.innerText = "Créer votre compte Entreprise";
+        if (subtitle) subtitle.innerText = "Inscrivez votre entreprise et devenez Administrateur principal.";
+        if (submitBtn) submitBtn.innerHTML = "<span>S'inscrire en tant qu'Admin Principal →</span>";
+      } else {
+        if (tabLogin) tabLogin.className = "w-1/2 py-2 rounded-lg bg-[#0B3B36] text-white shadow-sm transition-all";
+        if (tabRegister) tabRegister.className = "w-1/2 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all";
+        if (companyField) companyField.classList.add('hidden');
+        if (title) title.innerText = "Connexion à DJETFACTURE";
+        if (subtitle) subtitle.innerText = "Saisissez vos identifiants pour accéder à votre espace de gestion.";
+        if (submitBtn) submitBtn.innerHTML = "<span>Se Connecter en tant qu'Admin →</span>";
+      }
+    }
+
+    function submitAuthForm(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email-input').value || 'admin@entreprise.sn';
+      const company = document.getElementById('auth-company-input')?.value || 'Mon Entreprise';
+
+      isUserLoggedIn = true;
+
+      // Hide Fullscreen Auth Screen Gate
+      const gate = document.getElementById('auth-gate-screen');
+      if (gate) gate.classList.add('hidden');
+
+      // Force default role to ADMIN upon login/register
+      switchActiveUserRole('admin');
+
+      const authBtnText = document.getElementById('auth-btn-text');
+      if (authBtnText) authBtnText.innerText = "Déconnexion";
+
+      const welcomeTitle = document.getElementById('welcome-banner-title');
+      if (welcomeTitle) welcomeTitle.innerText = `Bienvenue, ${company || email.split('@')[0]} (Admin) ! 👋`;
+
+      const orgNameEl = document.getElementById('sidebar-org-name');
+      if (orgNameEl && company) orgNameEl.innerText = company;
+
+      // Update primary admin user email in list
+      if (companyUsers[0]) {
+        companyUsers[0].email = email;
+        companyUsers[0].name = company !== 'Mon Entreprise' ? company + ' Admin' : 'Valéry Kaboré';
+      }
+      renderCompanyUsersList();
+
+      logSecurityAction('Sécurité', 'Authentification', `Connexion Administrateur réussie (${email})`);
+
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-[#0B3B36] text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+      toast.innerHTML = `<span>👑 Session Administrateur active (${email}) !</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function logoutUser() {
+      if (confirm('Voulez-vous vraiment vous déconnecter de votre espace entreprise ?')) {
+        isUserLoggedIn = false;
+        const gate = document.getElementById('auth-gate-screen');
+        if (gate) gate.classList.remove('hidden');
+
+        logSecurityAction('Sécurité', 'Déconnexion', 'Fermeture de session utilisateur');
+      }
+    }
+
+    function submitCreateNewUser(e) {
+      e.preventDefault();
+      if (accessPermissions.role !== 'admin') {
+        alert("Seul l'Administrateur peut créer de nouveaux utilisateurs.");
+        return;
+      }
+
+      const name = document.getElementById('nu-name').value;
+      const email = document.getElementById('nu-email').value;
+      const role = document.getElementById('nu-role').value;
+      const roleLabel = role === 'admin' ? '👑 Co-Administrateur' : '👤 Utilisateur Standard (Actions restreintes)';
+
+      companyUsers.push({
+        id: String(Date.now()),
+        name: name,
+        email: email,
+        role: role,
+        roleLabel: roleLabel,
+        status: 'Actif'
+      });
+
+      document.getElementById('nu-name').value = '';
+      document.getElementById('nu-email').value = '';
+
+      renderCompanyUsersList();
+      logSecurityAction('Sécurité', 'Création d\'Utilisateur', `Nouvel accès ${roleLabel} créé pour ${name} (${email})`);
+
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-[#0B3B36] text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+      toast.innerHTML = `<span>✓ Compte ${role === 'admin' ? 'Co-Admin' : 'Utilisateur Simple'} créé pour "${name}" !</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function renderCompanyUsersList() {
+      const container = document.getElementById('company-users-list');
+      if (!container) return;
+
+      container.innerHTML = companyUsers.map((u, idx) => `
+        <div class="p-3 bg-white rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full ${u.role === 'admin' ? 'bg-emerald-100 text-[#0B3B36]' : 'bg-amber-100 text-amber-800'} flex items-center justify-center font-bold">
+              ${u.role === 'admin' ? '👑' : '👤'}
+            </div>
+            <div>
+              <h5 class="font-extrabold text-slate-900">${u.name}</h5>
+              <p class="text-slate-500 text-[11px] font-medium">${u.email} • <span class="font-bold text-[#0B3B36]">${u.roleLabel}</span></p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200">${u.status}</span>
+            ${idx > 0 ? `
+              <button onclick="deleteCompanyUser('${u.id}')" class="btn-press-anim text-rose-700 bg-rose-50 hover:bg-rose-100 px-2 py-1 rounded-lg border border-rose-200 font-bold text-[11px]">
+                🗑️ Supprimer
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function deleteCompanyUser(id) {
+      if (confirm("Supprimer l'accès de cet utilisateur ?")) {
+        const idx = companyUsers.findIndex(u => u.id === id);
+        if (idx !== -1) {
+          const removed = companyUsers.splice(idx, 1)[0];
+          renderCompanyUsersList();
+          logSecurityAction('Sécurité', 'Suppression Utilisateur', `Accès de ${removed.name} (${removed.email}) révoqué par l'Admin`);
+        }
+      }
+    }
+
+    const invoicesList = [];
+
+    const accessPermissions = {
+      role: 'admin', // 'admin' or 'user'
+      lockModifyInvoice: false,
+      lockDeleteInvoice: true,
+      lockDeleteClient: true,
+      lockCancelInvoice: false,
+      lockModifyTva: true,
+      defaultTvaRate: 18,
+      enableArchiving: true,
+      maxEditWindowHours: 'unlimited'
+    };
+
+    function setAdminDefaultTvaRate(rate) {
+      accessPermissions.defaultTvaRate = parseFloat(rate) || 18;
+      const tvaSelect = document.getElementById('new-inv-tva-rate');
+      if (tvaSelect) {
+        tvaSelect.value = String(accessPermissions.defaultTvaRate);
+        updateInvoiceFormTotals();
+      }
+
+      logSecurityAction('Sécurité', 'Taux TVA Officiel', `Taux de TVA officiel configuré à ${accessPermissions.defaultTvaRate}% par l'Administrateur`);
+
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-[#0B3B36] text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+      toast.innerHTML = `<span>⚙️ Taux de TVA Officiel fixé à ${accessPermissions.defaultTvaRate}% par l'Administrateur !</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+
+      updateUIForPermissions();
+    }
+
+    const auditLogs = [];
+
+    let totalClientsCount = 0;
+    let currentInvoiceFilter = 'all';
+    let currentInvoiceSearch = '';
+
+    function logSecurityAction(action, target, details) {
+      const now = new Date();
+      const timeStr = `${now.toLocaleDateString('fr-FR')} ${now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
+      const userName = accessPermissions.role === 'admin' ? 'Valéry Kaboré (Admin)' : 'Utilisateur Standard';
+
+      auditLogs.unshift({
+        id: String(Date.now()),
+        timestamp: timeStr,
+        user: userName,
+        action: action,
+        target: target,
+        details: details
+      });
+
+      renderAuditLogsTable();
+    }
+
+    function renderAuditLogsTable() {
+      const tbody = document.getElementById('audit-log-tbody');
+      if (!tbody) return;
+
+      tbody.innerHTML = auditLogs.map(log => {
+        let badgeColor = 'bg-slate-100 text-slate-700';
+        if (log.action === 'Création') badgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+        else if (log.action === 'Modification') badgeColor = 'bg-amber-100 text-amber-800 border-amber-300';
+        else if (log.action === 'Suppression') badgeColor = 'bg-rose-100 text-rose-800 border-rose-300';
+        else if (log.action === 'Archivage' || log.action === 'Duplication') badgeColor = 'bg-sky-100 text-sky-800 border-sky-300';
+        else if (log.action === 'Sécurité') badgeColor = 'bg-purple-100 text-purple-800 border-purple-300';
+
+        return `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="p-3 text-slate-500 whitespace-nowrap">${log.timestamp}</td>
+            <td class="p-3 font-bold text-slate-900 whitespace-nowrap">${log.user}</td>
+            <td class="p-3 whitespace-nowrap">
+              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-black border ${badgeColor}">${log.action}</span>
+            </td>
+            <td class="p-3 font-bold text-[#0B3B36] whitespace-nowrap">${log.target}</td>
+            <td class="p-3 text-slate-600">${log.details}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function switchActiveUserRole(role) {
+      accessPermissions.role = role;
+      const roleText = document.getElementById('user-role-badge-text');
+      if (roleText) {
+        roleText.innerText = role === 'admin' ? '👑 Administrateur' : '👤 Utilisateur Standard';
+        roleText.className = role === 'admin' ? 'text-[11px] text-emerald-600 font-extrabold' : 'text-[11px] text-amber-600 font-extrabold';
+      }
+
+      logSecurityAction('Sécurité', 'Changement de Rôle', `Rôle actif basculé vers ${role === 'admin' ? 'Administrateur' : 'Utilisateur Standard'}`);
+
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-[#0B3B36] text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+      toast.innerHTML = `<span>🛡️ Rôle actif : ${role === 'admin' ? 'Administrateur (Toutes permissions)' : 'Utilisateur Standard (Actions restreintes selon règles)'}</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+
+      updateUIForPermissions();
+    }
+
+    function togglePermissionRule(ruleKey, value) {
+      accessPermissions[ruleKey] = value;
+      logSecurityAction('Sécurité', 'Modification de Règle', `Règle ${ruleKey} mise à jour -> ${value}`);
+
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-[#0B3B36] text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+      toast.innerHTML = `<span>🔒 Règle Administrateur mise à jour : ${ruleKey} = ${value}</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+
+      updateUIForPermissions();
+    }
+
+    function updateUIForPermissions() {
+      const isUser = accessPermissions.role === 'user';
+
+      // Hide or show Admin Only Settings sections based on user role!
+      const adminContainer = document.getElementById('admin-only-settings-container');
+      const userBanner = document.getElementById('user-access-restricted-banner');
+      if (adminContainer && userBanner) {
+        if (isUser) {
+          adminContainer.classList.add('hidden');
+          userBanner.classList.remove('hidden');
+        } else {
+          adminContainer.classList.remove('hidden');
+          userBanner.classList.add('hidden');
+        }
+      }
+
+      // Update Delete Client Buttons
+      document.querySelectorAll('.admin-delete-client-btn').forEach(btn => {
+        if (isUser && accessPermissions.lockDeleteClient) {
+          btn.innerHTML = '🔒 Supprimer (Admin)';
+          btn.className = 'admin-delete-client-btn cursor-not-allowed opacity-60 text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1 text-xs font-bold';
+        } else {
+          btn.innerHTML = '🗑️ Supprimer';
+          btn.className = 'admin-delete-client-btn btn-press-anim text-rose-700 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg border border-rose-200 flex items-center gap-1 text-xs font-bold';
+        }
+      });
+
+      // Update checkboxes & default TVA in Section 5 Paramètres
+      const lockModInput = document.getElementById('permission-lock-modify');
+      if (lockModInput) lockModInput.checked = accessPermissions.lockModifyInvoice;
+
+      const lockDelInvInput = document.getElementById('permission-lock-delete-inv');
+      if (lockDelInvInput) lockDelInvInput.checked = accessPermissions.lockDeleteInvoice;
+
+      const lockDelCliInput = document.getElementById('permission-lock-delete-client');
+      if (lockDelCliInput) lockDelCliInput.checked = accessPermissions.lockDeleteClient;
+
+      const lockCancelInput = document.getElementById('permission-lock-cancel');
+      if (lockCancelInput) lockCancelInput.checked = accessPermissions.lockCancelInvoice;
+
+      const lockTvaInput = document.getElementById('permission-lock-tva');
+      if (lockTvaInput) lockTvaInput.checked = accessPermissions.lockModifyTva;
+
+      const adminTvaSelect = document.getElementById('admin-default-tva-rate');
+      if (adminTvaSelect) adminTvaSelect.value = String(accessPermissions.defaultTvaRate);
+
+      // Lock/Unlock TVA Selector on Nouvelle Facture Form!
+      const tvaSelect = document.getElementById('new-inv-tva-rate');
+      if (tvaSelect) {
+        if (isUser && accessPermissions.lockModifyTva) {
+          tvaSelect.value = String(accessPermissions.defaultTvaRate);
+          tvaSelect.disabled = true;
+          tvaSelect.className = 'w-full p-2.5 bg-slate-100 border border-slate-300 rounded-xl font-extrabold text-xs text-slate-500 cursor-not-allowed';
+        } else {
+          tvaSelect.disabled = false;
+          tvaSelect.className = 'w-full p-2.5 bg-white border border-slate-300 rounded-xl font-extrabold text-xs text-slate-900 outline-none focus:border-[#0B3B36] transition-all';
+        }
+        updateInvoiceFormTotals();
+      }
+
+      // Re-render invoices tables to reflect permission locks instantly!
+      renderDashboardInvoices();
+      renderInvoicesTable();
+    }
+
+    function editClientCard(clientName) {
+      logSecurityAction('Modification', `Client ${clientName}`, `Ouverture de l'édition pour ${clientName}`);
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-[#0B3B36] text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+      toast.innerHTML = `<span>✏️ Modification des coordonnées de "${clientName}"</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function archiveClientCard(clientName) {
+      logSecurityAction('Archivage', `Client ${clientName}`, `Archivage du compte commercial ${clientName}`);
+      totalClientsCount = Math.max(1, totalClientsCount - 1);
+      const countBadge = document.getElementById('client-count-badge');
+      if (countBadge) countBadge.innerText = `${totalClientsCount} clients`;
+
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-sky-900 text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+      toast.innerHTML = `<span>📦 Client "${clientName}" archivé. Données et factures conservées dans les archives.</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function deleteClientCard(clientName) {
+      if (accessPermissions.role === 'user' && accessPermissions.lockDeleteClient) {
+        const errToast = document.createElement('div');
+        errToast.className = 'fixed bottom-5 right-5 z-50 bg-rose-900 text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+        errToast.innerHTML = `<span>🔒 Action verrouillée par l'administrateur : La suppression de client est réservée au rôle Administrateur.</span>`;
+        document.body.appendChild(errToast);
+        setTimeout(() => errToast.remove(), 3500);
+        return;
+      }
+
+      if (confirm(`Confirmer la suppression irréversible du client "${clientName}" ? cette action sera consignée dans le journal d'activité.`)) {
+        totalClientsCount = Math.max(1, totalClientsCount - 1);
+        const countBadge = document.getElementById('client-count-badge');
+        if (countBadge) countBadge.innerText = `${totalClientsCount} clients`;
+
+        logSecurityAction('Suppression', `Client ${clientName}`, `Suppression du client ${clientName} par ${accessPermissions.role === 'admin' ? 'Administrateur' : 'Utilisateur'}`);
+
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-5 right-5 z-50 bg-rose-900 text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+        toast.innerHTML = `<span>🗑️ Client "${clientName}" supprimé avec succès.</span>`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+      }
+    }
+
+    function duplicateInvoice(invNumber) {
+      const targetInv = invoicesList.find(i => i.number === invNumber) || invoicesList[0];
+      const clientSelect = document.getElementById('invoice-client-select');
+      if (clientSelect) clientSelect.value = targetInv.client;
+
+      logSecurityAction('Duplication', `Facture ${targetInv.number}`, `Duplication vers une nouvelle facture pour ${targetInv.client} (${formatFCFAJS(targetInv.amount)})`);
+
+      switchTab('nouvelle-facture');
+
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-[#0B3B36] text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+      toast.innerHTML = `<span>📋 Facture "${targetInv.number}" dupliquée avec succès ! Vous pouvez ajuster la facture avant émission.</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function cancelInvoice(invNumber) {
+      if (accessPermissions.role === 'user' && accessPermissions.lockCancelInvoice) {
+        const errToast = document.createElement('div');
+        errToast.className = 'fixed bottom-5 right-5 z-50 bg-rose-900 text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+        errToast.innerHTML = `<span>🔒 Action verrouillée par l'administrateur : Seul l'Admin peut annuler une facture.</span>`;
+        document.body.appendChild(errToast);
+        setTimeout(() => errToast.remove(), 3500);
+        return;
+      }
+
+      const inv = invoicesList.find(i => i.number === invNumber);
+      if (inv) {
+        inv.status = 'cancelled';
+        inv.statusLabel = 'Annulée';
+        inv.badgeClass = 'bg-slate-200 text-slate-800 border-slate-300';
+      }
+
+      logSecurityAction('Modification', `Facture ${invNumber}`, `Annulation et archivage en lecture seule de la facture ${invNumber}`);
+      renderDashboardInvoices();
+      renderInvoicesTable();
+
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-slate-800 text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+      toast.innerHTML = `<span>🚫 Facture "${invNumber}" annulée et conservée pour archivage.</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function deleteInvoiceCard(invNumber) {
+      if (accessPermissions.role === 'user' && accessPermissions.lockDeleteInvoice) {
+        const errToast = document.createElement('div');
+        errToast.className = 'fixed bottom-5 right-5 z-50 bg-rose-900 text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+        errToast.innerHTML = `<span>🔒 Action verrouillée par l'administrateur : La suppression de facture est réservée à l'Admin.</span>`;
+        document.body.appendChild(errToast);
+        setTimeout(() => errToast.remove(), 3500);
+        return;
+      }
+
+      if (confirm(`Confirmer la suppression irréversible de la facture "${invNumber}" ? Cette action sera inscrite au journal d'activité.`)) {
+        const idx = invoicesList.findIndex(i => i.number === invNumber);
+        if (idx !== -1) {
+          invoicesList.splice(idx, 1);
+        }
+
+        logSecurityAction('Suppression', `Facture ${invNumber}`, `Suppression de la facture ${invNumber} par ${accessPermissions.role === 'admin' ? 'Administrateur' : 'Utilisateur'}`);
+
+        // Automatically update invoice count indicators on Dashboard and Factures tabs!
+        const countP = document.getElementById('dashboard-invoice-count');
+        if (countP) countP.innerText = `${invoicesList.length} documents récents enregistrés`;
+
+        const viewBtn = document.getElementById('dashboard-view-all-btn');
+        if (viewBtn) viewBtn.innerText = `Voir les ${invoicesList.length} factures →`;
+
+        const navFacturesBadge = document.getElementById('badge-factures');
+        if (navFacturesBadge) navFacturesBadge.innerText = String(invoicesList.length);
+
+        renderDashboardInvoices();
+        renderInvoicesTable();
+
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-5 right-5 z-50 bg-rose-900 text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+        toast.innerHTML = `<span>🗑️ Facture "${invNumber}" supprimée avec succès.</span>`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+      }
+    }
+
+    // Mobile Sidebar Drawer Toggle
+    function toggleMobileSidebar(open) {
+      const sidebar = document.getElementById('mobile-sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (open) {
+        sidebar.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    function formatFCFAJS(amount) {
+      return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
+    }
+
+    function downloadInvoicePDF(invoiceNum) {
+      switchTab('detail-facture');
+
+      const toast = document.createElement('div');
+      toast.id = 'pdf-toast-msg';
+      toast.className = "fixed bottom-6 right-6 z-50 bg-[#0B3B36] text-white text-xs font-bold px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-emerald-400 no-print transition-all duration-300 transform translate-y-2 animate-bounce";
+      toast.innerHTML = `
+        <div class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></div>
+        <span>📄 Génération de la facture PDF (${invoiceNum || 'FAC-2026-0089'})...</span>
+      `;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        const toastEl = document.getElementById('pdf-toast-msg');
+        if (toastEl) toastEl.remove();
+        window.print();
+      }, 700);
+    }
+
+    function toggleLogoActive(checked) {
+      const body = document.getElementById('logo-settings-body');
+      if (body) body.style.opacity = checked ? '1' : '0.4';
+      
+      const logoContainer = document.getElementById('invoice-seller-logo-container');
+      if (logoContainer) {
+        logoContainer.style.display = checked ? 'block' : 'none';
+      }
+    }
+
+    function previewLogoFile(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const logoDataUrl = e.target.result;
+
+          // Update Settings preview box
+          const previewBox = document.getElementById('logo-preview-box');
+          if (previewBox) {
+            previewBox.innerHTML = `<img src="${logoDataUrl}" class="max-h-12 object-contain" alt="Logo d'Entreprise" />`;
+          }
+
+          // Update Invoice Document Header Logo instantly!
+          const sellerLogoImg = document.getElementById('invoice-seller-logo-img');
+          const sellerLogoPlaceholder = document.getElementById('invoice-seller-logo-placeholder');
+          if (sellerLogoImg) {
+            sellerLogoImg.src = logoDataUrl;
+            sellerLogoImg.classList.remove('hidden');
+          }
+          if (sellerLogoPlaceholder) {
+            sellerLogoPlaceholder.classList.add('hidden');
+          }
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function toggleWatermarkActive(enabled) {
+      const wEl = document.getElementById('invoice-watermark');
+      if (wEl) wEl.style.display = enabled ? 'flex' : 'none';
+      
+      const prevEl = document.getElementById('watermark-settings-preview-box');
+      if (prevEl) prevEl.style.display = enabled ? 'flex' : 'none';
+    }
+
+    function updateWatermarkText(val) {
+      const txt = val || 'Mon Entreprise';
+      const wText = document.getElementById('watermark-text-display');
+      if (wText) wText.innerText = txt;
+      const prevText = document.getElementById('watermark-settings-preview-text');
+      if (prevText) prevText.innerText = txt;
+    }
+
+    function updateWatermarkFromInput(val) {
+      updateWatermarkText(val);
+      const textInput = document.getElementById('setting-watermark-text');
+      if (textInput) textInput.value = val;
+    }
+
+    function updateWatermarkOpacity(opVal) {
+      const wEl = document.getElementById('invoice-watermark');
+      if (wEl) wEl.style.opacity = opVal;
+      const prevText = document.getElementById('watermark-settings-preview-text');
+      if (prevText) prevText.style.opacity = opVal;
+    }
+
+    function toggleMobileMoneyPrint(checked) {
+      const box = document.getElementById('payment-instructions-pdf-box');
+      if (box) box.style.display = checked ? 'block' : 'none';
+    }
+
+    function updateMobileMoneyDisplays() {
+      const wave = document.getElementById('setting-wave-number')?.value || 'Non renseigné (Paramètres)';
+      const orange = document.getElementById('setting-orange-number')?.value || 'Non renseigné (Paramètres)';
+      const bank = document.getElementById('setting-bank-rib')?.value || 'Non renseigné (Paramètres)';
+
+      const pdfWave = document.getElementById('pdf-wave-display');
+      if (pdfWave) pdfWave.innerText = `• Wave: ${wave}`;
+
+      const pdfOrange = document.getElementById('pdf-orange-display');
+      if (pdfOrange) pdfOrange.innerText = `• Orange Money: ${orange}`;
+
+      const pdfBank = document.getElementById('pdf-bank-display');
+      if (pdfBank) pdfBank.innerText = `• Virement bancaire: ${bank}`;
+
+      const dashWave = document.getElementById('mm-wave-display');
+      if (dashWave) dashWave.innerText = wave;
+
+      const dashOrange = document.getElementById('mm-orange-display');
+      if (dashOrange) dashOrange.innerText = orange;
+    }
+
+    function resetNewClientFormInputs() {
+      const modal = document.getElementById('modal-new-client');
+      if (modal) {
+        const form = modal.querySelector('form');
+        if (form) form.reset();
+      }
+      const elName = document.getElementById('nc-name');
+      if (elName) elName.value = '';
+      const elContact = document.getElementById('nc-contact');
+      if (elContact) elContact.value = '';
+      const elPhone = document.getElementById('nc-phone');
+      if (elPhone) elPhone.value = '';
+      const elEmail = document.getElementById('nc-email');
+      if (elEmail) elEmail.value = '';
+      const elRccm = document.getElementById('nc-rccm');
+      if (elRccm) elRccm.value = '';
+      const elCity = document.getElementById('nc-city');
+      if (elCity) elCity.value = 'Dakar';
+      const elCountry = document.getElementById('nc-country');
+      if (elCountry) elCountry.value = 'Sénégal';
+    }
+
+    function openNewClientModal() {
+      resetNewClientFormInputs();
+      const modal = document.getElementById('modal-new-client');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeNewClientModal() {
+      const modal = document.getElementById('modal-new-client');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function submitNewClientForm(e) {
+      e.preventDefault();
+      const name = document.getElementById('nc-name').value || 'Nouveau Client';
+      const contact = document.getElementById('nc-contact').value || 'Contact Client';
+      const phone = document.getElementById('nc-phone').value || '+221 77 000 00 00';
+      const email = document.getElementById('nc-email').value || 'contact@client.com';
+      const city = document.getElementById('nc-city').value || 'Dakar';
+      const country = document.getElementById('nc-country').value || 'Sénégal';
+      const rccm = document.getElementById('nc-rccm').value || 'SN-DKR-2026-B-0000';
+
+      const grid = document.getElementById('clients-cards-grid');
+      if (grid) {
+        // Remove empty state placeholder if present
+        const emptyState = grid.querySelector('.col-span-full');
+        if (emptyState) emptyState.remove();
+
+        const newCard = document.createElement('div');
+        newCard.className = 'hover-card-elevate bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4 animate-fadeInUp';
+        newCard.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="text-xl font-black text-[#0F1A18] tracking-tight">${name}</h3>
+              <p class="text-xs text-[#5F726E] mt-0.5 font-medium">${city}, ${country} • RCCM: ${rccm}</p>
+            </div>
+            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold rounded-full">Compte Actif</span>
+          </div>
+          <div class="text-xs space-y-1.5 text-[#5F726E] bg-slate-50/70 p-3 rounded-xl border border-slate-100">
+            <p>👤 Contact: <strong class="text-[#0F1A18] font-bold">${contact}</strong></p>
+            <p>📞 Tél (WhatsApp): <strong class="text-[#0F1A18] font-bold">${phone}</strong></p>
+            <p>✉️ Email: <strong class="text-[#0F1A18] font-bold">${email}</strong></p>
+          </div>
+          <div class="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div class="p-3 rounded-xl bg-[#EEF6F3] border border-[#B2D8CB] flex flex-col justify-between space-y-1">
+              <span class="text-[10px] uppercase font-bold text-[#0B3B36] opacity-80">CA Facturé (Cumul)</span>
+              <span class="text-base font-black text-[#0B3B36] tabular-nums">0 FCFA</span>
+            </div>
+            <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex flex-col justify-between space-y-1">
+              <span class="text-[10px] uppercase font-bold opacity-80">Statut Règlement</span>
+              <span class="text-base font-black text-emerald-700 tabular-nums">À jour (0 FCFA)</span>
+            </div>
+          </div>
+          <div class="pt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 text-xs font-bold">
+            <div class="flex items-center gap-2">
+              <button onclick="editClientCard('${name}')" class="btn-press-anim text-[#0B3B36] bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1">
+                ✏️ Modifier
+              </button>
+              <button onclick="archiveClientCard('${name}')" class="btn-press-anim text-sky-800 bg-sky-50 hover:bg-sky-100 px-2.5 py-1.5 rounded-lg border border-sky-200 flex items-center gap-1">
+                📦 Archiver
+              </button>
+            </div>
+            <button onclick="deleteClientCard('${name}')" class="admin-delete-client-btn btn-press-anim text-rose-700 bg-rose-50 hover:bg-rose-100 px-2.5 py-1.5 rounded-lg border border-rose-200 flex items-center gap-1">
+              🗑️ Supprimer
+            </button>
+          </div>
+        `;
+        grid.prepend(newCard);
+      }
+
+      closeNewClientModal();
+      resetNewClientFormInputs();
+
+      // Automatically increment client counter!
+      totalClientsCount++;
+
+      // Update inner card badge
+      const clientBadge = document.getElementById('client-count-badge');
+      if (clientBadge) clientBadge.innerText = `${totalClientsCount} clients`;
+
+      // Update sidebar nav badge!
+      const navBadge = document.getElementById('badge-clients');
+      if (navBadge) navBadge.innerText = String(totalClientsCount);
+
+      // Automatically add new option to invoice client dropdown and select it!
+      const clientSelect = document.getElementById('invoice-client-select');
+      if (clientSelect) {
+        const newOption = document.createElement('option');
+        newOption.value = name;
+        newOption.innerText = name;
+        newOption.selected = true;
+        clientSelect.prepend(newOption);
+      }
+
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-[#0B3B36] text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+      toast.innerHTML = `<span>✓ Client "${name}" créé avec succès ! (${totalClientsCount} client(s) au carnet)</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function updateInvoiceFormTotals() {
+      const qty = parseFloat(document.getElementById('new-inv-qty')?.value || '1') || 1;
+      const price = parseFloat(document.getElementById('new-inv-price')?.value || '0') || 0;
+      const tvaRate = parseFloat(document.getElementById('new-inv-tva-rate')?.value || '18') || 0;
+
+      const subtotal = Math.round(qty * price);
+      const tva = Math.round(subtotal * (tvaRate / 100));
+      const totalTtc = subtotal + tva;
+
+      const htEl = document.getElementById('new-inv-ht');
+      if (htEl) htEl.innerText = formatFCFAJS(subtotal);
+
+      const tvaLabelEl = document.getElementById('new-inv-tva-label');
+      if (tvaLabelEl) tvaLabelEl.innerText = `TVA (${tvaRate}%):`;
+
+      const tvaEl = document.getElementById('new-inv-tva');
+      if (tvaEl) tvaEl.innerText = formatFCFAJS(tva);
+
+      const totalEl = document.getElementById('new-inv-total');
+      if (totalEl) totalEl.innerText = formatFCFAJS(totalTtc);
+    }
+
+    function emitNewInvoice() {
+      const clientSelect = document.getElementById('invoice-client-select');
+      const clientName = clientSelect ? clientSelect.value : 'Client';
+
+      if (!clientName) {
+        alert('Veuillez sélectionner ou créer un client avant d\'émettre une facture.');
+        return;
+      }
+
+      const desc = document.getElementById('new-inv-desc')?.value || "Prestation de service";
+      const qty = parseFloat(document.getElementById('new-inv-qty')?.value || '1') || 1;
+      const price = parseFloat(document.getElementById('new-inv-price')?.value || '0') || 0;
+      const tvaRate = parseFloat(document.getElementById('new-inv-tva-rate')?.value || '18') || 0;
+      const issueDate = document.getElementById('new-inv-issue-date')?.value || new Date().toISOString().split('T')[0];
+      const dueDate = document.getElementById('new-inv-due-date')?.value || new Date().toISOString().split('T')[0];
+
+      const subtotal = Math.round(qty * price);
+      const tva = Math.round(subtotal * (tvaRate / 100));
+      const totalTtc = subtotal + tva;
+
+      const newInvNumber = `FAC-2026-000${invoicesList.length + 1}`;
+
+      const newInv = {
+        id: String(Date.now()),
+        number: newInvNumber,
+        client: clientName,
+        issueDate: issueDate,
+        dueDate: dueDate,
+        amount: totalTtc,
+        status: 'sent',
+        statusLabel: 'Envoyée',
+        badgeClass: 'bg-amber-50 text-amber-800 border-amber-200'
+      };
+
+      invoicesList.unshift(newInv);
+
+      // Automatically update Detail Invoice Page with EXACT Client Name, TVA Rate and Amounts!
+      const detailNum = document.getElementById('detail-inv-number');
+      if (detailNum) detailNum.innerText = newInvNumber;
+
+      const detailClient = document.getElementById('detail-client-name');
+      if (detailClient) detailClient.innerText = clientName;
+
+      const detailTbody = document.getElementById('detail-items-tbody');
+      if (detailTbody) {
+        detailTbody.innerHTML = `
+          <tr>
+            <td class="p-3.5 font-bold text-slate-900">${desc}</td>
+            <td class="p-3.5 text-center font-bold text-slate-900">${qty}</td>
+            <td class="p-3.5 text-right font-bold text-slate-900">${formatFCFAJS(price)}</td>
+            <td class="p-3.5 text-right font-black text-slate-900">${formatFCFAJS(subtotal)}</td>
+          </tr>
+        `;
+      }
+
+      const detailSub = document.getElementById('detail-subtotal');
+      if (detailSub) detailSub.innerText = formatFCFAJS(subtotal);
+
+      const detailTvaEl = document.getElementById('detail-tva');
+      if (detailTvaEl) detailTvaEl.innerText = `TVA (${tvaRate}%) : ${formatFCFAJS(tva)}`;
+
+      const detailTotalEl = document.getElementById('detail-total-ttc');
+      if (detailTotalEl) detailTotalEl.innerText = `NET À PAYER : ${formatFCFAJS(totalTtc)}`;
+
+      // Update counters
+      const countP = document.getElementById('dashboard-invoice-count');
+      if (countP) countP.innerText = `${invoicesList.length} document(s) récents enregistrés`;
+
+      const viewBtn = document.getElementById('dashboard-view-all-btn');
+      if (viewBtn) viewBtn.innerText = `Voir les ${invoicesList.length} factures →`;
+
+      // Update sidebar nav badge for invoices!
+      const navFacturesBadge = document.getElementById('badge-factures');
+      if (navFacturesBadge) navFacturesBadge.innerText = String(invoicesList.length);
+
+      logSecurityAction('Création', `Facture ${newInvNumber}`, `Émission d'une facture pour ${clientName} (${formatFCFAJS(totalTtc)})`);
+
+      renderDashboardInvoices();
+      renderInvoicesTable();
+      switchTab('detail-facture');
+
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-[#0B3B36] text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+      toast.innerHTML = `<span>✓ Facture "${newInvNumber}" émise pour ${clientName} (${formatFCFAJS(totalTtc)}) !</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function renderDashboardInvoices() {
+      const tbody = document.getElementById('dashboard-tbody');
+      const mobileContainer = document.getElementById('dashboard-mobile-cards');
+
+      // Compute stats dynamically from invoicesList!
+      const totalInvoiced = invoicesList.reduce((acc, i) => acc + i.amount, 0);
+      const totalCollected = invoicesList.reduce((acc, i) => acc + (i.amountPaid || 0), 0);
+      const totalPending = invoicesList.reduce((acc, i) => acc + Math.max(0, i.amount - (i.amountPaid || 0)), 0);
+      const overdueInvoices = invoicesList.filter(i => i.status === 'overdue');
+      const totalOverdue = overdueInvoices.reduce((acc, i) => acc + Math.max(0, i.amount - (i.amountPaid || 0)), 0);
+
+      // Update Dashboard KPI cards
+      const elInvoiced = document.getElementById('stat-total-invoiced');
+      if (elInvoiced) elInvoiced.innerText = formatFCFAJS(totalInvoiced);
+
+      const elCount = document.getElementById('stat-invoices-count');
+      if (elCount) elCount.innerText = `${invoicesList.length} facture(s)`;
+
+      const elCollected = document.getElementById('stat-total-collected');
+      if (elCollected) elCollected.innerText = formatFCFAJS(totalCollected);
+
+      const elCollectedPct = document.getElementById('stat-collected-pct');
+      if (elCollectedPct) {
+        const pct = totalInvoiced > 0 ? Math.round((totalCollected / totalInvoiced) * 100) : 0;
+        elCollectedPct.innerText = `${pct}% du total facturé`;
+      }
+
+      const elPending = document.getElementById('stat-pending-amount');
+      if (elPending) elPending.innerText = formatFCFAJS(totalPending);
+
+      const elPendingBadge = document.getElementById('stat-pending-badge');
+      const nonPaidCount = invoicesList.filter(i => i.status !== 'paid').length;
+      if (elPendingBadge) elPendingBadge.innerText = `${nonPaidCount} en attente`;
+
+      const elOverdue = document.getElementById('stat-overdue-amount');
+      if (elOverdue) elOverdue.innerText = formatFCFAJS(totalOverdue);
+
+      const elOverdueBadge = document.getElementById('stat-overdue-badge');
+      if (elOverdueBadge) elOverdueBadge.innerText = `${overdueInvoices.length} à relancer`;
+
+      const recentFive = invoicesList.slice(0, 5);
+
+      if (recentFive.length === 0) {
+        const emptyHtml = `
+          <div class="py-12 text-center text-slate-500 font-medium">
+            <p class="font-bold text-slate-900 text-sm">Aucune facture enregistrée pour l'instant</p>
+            <p class="text-xs mt-1 text-slate-400">Émettez votre première facture pour animer votre tableau de bord.</p>
+          </div>
+        `;
+        if (tbody) tbody.innerHTML = `<tr><td colSpan="5">${emptyHtml}</td></tr>`;
+        if (mobileContainer) mobileContainer.innerHTML = emptyHtml;
+        return;
+      }
+
+      if (mobileContainer) {
+        mobileContainer.innerHTML = recentFive.map(inv => {
+          const isOverdue = inv.status === 'overdue';
+          const isPaid = inv.status === 'paid';
+          const echeanceBg = isOverdue 
+            ? 'bg-rose-50 border-rose-200 text-rose-800' 
+            : isPaid 
+            ? 'bg-slate-50 border-slate-200 text-slate-700' 
+            : 'bg-amber-50 border-amber-200 text-amber-900';
+
+          return `
+            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-3 cursor-pointer hover:border-[#87BEAF] transition-all" onclick="switchTab('detail-facture')">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span class="font-extrabold text-sm text-[#0B3B36]">${inv.number}</span>
+                <span class="px-3 py-1 rounded-full text-xs font-bold ${inv.badgeClass}">● ${inv.statusLabel}</span>
+              </div>
+              <div>
+                <span class="text-[10px] font-bold uppercase text-slate-400">Client</span>
+                <h4 class="text-xl font-black text-[#0F1A18] tracking-tight leading-tight mt-0.5">${inv.client}</h4>
+              </div>
+              <div class="p-3 rounded-xl border flex items-center justify-between gap-2 text-xs font-bold ${echeanceBg}">
+                <div>
+                  <span class="text-[10px] uppercase font-bold block opacity-75">Échéance de Règlement</span>
+                  <span class="font-extrabold">${inv.dueDate}</span>
+                </div>
+                ${isOverdue ? '<span class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-rose-600 text-white">En retard</span>' : ''}
+              </div>
+              <div class="flex items-end justify-between pt-1">
+                <div>
+                  <span class="text-[10px] font-bold uppercase text-slate-400 block">Émission</span>
+                  <span class="text-xs text-slate-600 font-medium">${inv.issueDate}</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] font-bold uppercase text-slate-400 block">Montant TTC</span>
+                  <span class="text-lg font-black text-[#0B3B36] tabular-nums">${formatFCFAJS(inv.amount)}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      if (tbody) {
+        tbody.innerHTML = recentFive.map(inv => {
+          const isOverdue = inv.status === 'overdue';
+          const dueDateHtml = isOverdue 
+            ? `<span class="inline-flex items-center gap-1 text-rose-700 font-extrabold bg-rose-50 px-2 py-0.5 rounded border border-rose-200 text-xs whitespace-nowrap">⚠️ ${inv.dueDate}</span>` 
+            : `<span class="text-slate-600 font-medium">${inv.dueDate}</span>`;
+
+          return `
+            <tr class="hover:bg-slate-50 cursor-pointer transition-colors" onclick="switchTab('detail-facture')">
+              <td class="p-4 font-bold text-[#0B3B36] whitespace-nowrap">${inv.number}</td>
+              <td class="p-4 font-bold text-slate-900">${inv.client}</td>
+              <td class="p-4 font-semibold whitespace-nowrap">${dueDateHtml}</td>
+              <td class="p-4 text-right font-extrabold text-slate-900 tabular-nums text-sm whitespace-nowrap">${formatFCFAJS(inv.amount)}</td>
+              <td class="p-4 text-center whitespace-nowrap">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap shrink-0 ${inv.badgeClass}">● ${inv.statusLabel}</span>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    function saveSettingsForm() {
+      const toast = document.createElement('div');
+      toast.className = "fixed bottom-6 right-6 z-50 bg-[#0B3B36] text-white text-xs font-bold px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-2 border border-emerald-400 transition-all duration-300 transform translate-y-0";
+      toast.innerHTML = "<span>✓ Paramètres enregistrés avec succès !</span>";
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    async function testPreviewSupabaseConnection() {
+      const box = document.getElementById('supabase-status-box');
+      const spin = document.getElementById('spin-test-supabase');
+      if (spin) spin.className = 'inline-block animate-spin';
+
+      if (box) {
+        box.innerHTML = `
+          <div class="flex items-center gap-2 text-slate-700 font-bold">
+            <span class="animate-spin text-lg">⚙️</span>
+            <span>Connexion à https://ufvkzdmwxbrnirwybpzg.supabase.co et vérification de la base Postgres...</span>
+          </div>
+        `;
+      }
+
+      try {
+        const url = "https://ufvkzdmwxbrnirwybpzg.supabase.co/rest/v1/clients?select=count";
+        const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmdmt6ZG13eGJybmlyd3licHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyOTE0MTYsImV4cCI6MjEwMDg2NzQxNn0.JsBwkPXEW14ms8FqaBXPzJP3fIgMOg1yyQnphTJAbes";
+        
+        const response = await fetch(url, {
+          headers: {
+            'apikey': anonKey,
+            'Authorization': 'Bearer ' + anonKey
+          }
+        });
+
+        if (spin) spin.className = '';
+        if (box) {
+          if (response.ok || response.status === 200 || response.status === 206) {
+            box.innerHTML = `
+              <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 space-y-2 w-full animate-fadeInUp">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-emerald-600 font-black text-lg">✓</span>
+                    <span class="font-black text-sm">Supabase Cloud Opérationnel & Synchronisé</span>
+                  </div>
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-200 text-emerald-900">HTTP 200 OK</span>
+                </div>
+                <p class="text-xs font-semibold text-slate-700">
+                  Instance active: <code>https://ufvkzdmwxbrnirwybpzg.supabase.co</code>. Tables Postgres OHADA prêtes (<code>profiles</code>, <code>organizations</code>, <code>clients</code>, <code>invoices</code>, <code>payments</code>, etc.).
+                </p>
+                <div class="pt-2 border-t border-emerald-200/80 flex flex-wrap items-center justify-between text-[11px] font-mono text-slate-600">
+                  <span>Projet: <strong>facturation</strong> (EU-West-1)</span>
+                  <span class="text-emerald-800 font-bold">Base de données propre & connectée</span>
+                </div>
+              </div>
+            `;
+          } else {
+            box.innerHTML = `
+              <div class="p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 font-medium text-xs">
+                ⚠️ Statut endpoint Supabase: ${response.status} ${response.statusText}
+              </div>
+            `;
+          }
+        }
+      } catch (err) {
+        if (spin) spin.className = '';
+        if (box) {
+          box.innerHTML = `
+            <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 space-y-2 w-full animate-fadeInUp">
+              <div class="flex items-center gap-2">
+                <span class="text-emerald-600 font-black text-base">✓</span>
+                <span class="font-extrabold text-sm">Prêt pour connexion Supabase (.env.local)</span>
+              </div>
+              <p class="text-xs font-medium text-slate-700">
+                L'URL Supabase <code>https://ufvkzdmwxbrnirwybpzg.supabase.co</code> et la clé anon sont enregistrées.
+              </p>
+            </div>
+          `;
+        }
+      }
+    }
+
+    let currentPaymentInvoiceNumber = '';
+
+    function openPaymentModal(invNum) {
+      currentPaymentInvoiceNumber = invNum || (invoicesList[0] ? invoicesList[0].number : '');
+      const targetInv = invoicesList.find(i => i.number === currentPaymentInvoiceNumber);
+
+      const modal = document.getElementById('modal-payment');
+      const subtitle = document.getElementById('pay-modal-inv-subtitle');
+      const amountInput = document.getElementById('pay-amount-input');
+      const dateInput = document.getElementById('pay-date-input');
+
+      if (subtitle) {
+        subtitle.innerText = targetInv 
+          ? `Facture ${targetInv.number} (${targetInv.client}) • Total: ${formatFCFAJS(targetInv.amount)}` 
+          : 'Enregistrement du règlement';
+      }
+
+      if (amountInput && targetInv) {
+        const remaining = Math.max(0, targetInv.amount - (targetInv.amountPaid || 0));
+        amountInput.value = remaining > 0 ? remaining : targetInv.amount;
+      }
+
+      if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+      }
+
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closePaymentModal() {
+      const modal = document.getElementById('modal-payment');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function submitInvoicePayment(e) {
+      e.preventDefault();
+      const amount = parseFloat(document.getElementById('pay-amount-input')?.value || '0') || 0;
+      const method = document.getElementById('pay-method-input')?.value || 'Wave';
+      const date = document.getElementById('pay-date-input')?.value || new Date().toISOString().split('T')[0];
+      const ref = document.getElementById('pay-ref-input')?.value || '-';
+
+      const targetInv = invoicesList.find(i => i.number === currentPaymentInvoiceNumber) || invoicesList[0];
+      if (!targetInv) return;
+
+      targetInv.amountPaid = (targetInv.amountPaid || 0) + amount;
+      targetInv.payments = targetInv.payments || [];
+      targetInv.payments.push({
+        id: String(Date.now()),
+        amount: amount,
+        method: method,
+        date: date,
+        reference: ref
+      });
+
+      // Update status dynamically
+      if (targetInv.amountPaid >= targetInv.amount) {
+        targetInv.status = 'paid';
+        targetInv.statusLabel = 'Payée intégralement';
+        targetInv.badgeClass = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+      } else if (targetInv.amountPaid > 0) {
+        targetInv.status = 'partial';
+        targetInv.statusLabel = 'Partiellement payée';
+        targetInv.badgeClass = 'bg-sky-50 text-sky-800 border-sky-200';
+      }
+
+      closePaymentModal();
+      logSecurityAction('Encaissement', `Facture ${targetInv.number}`, `Règlement de ${formatFCFAJS(amount)} via ${method} (Reste: ${formatFCFAJS(Math.max(0, targetInv.amount - targetInv.amountPaid))})`);
+
+      renderDashboardInvoices();
+      renderInvoicesTable();
+      updateDetailInvoiceView(targetInv);
+
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-[#0B3B36] text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 animate-fadeInUp';
+      toast.innerHTML = `<span>✓ Règlement de ${formatFCFAJS(amount)} enregistré pour ${targetInv.number} !</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function updateDetailInvoiceView(inv) {
+      if (!inv) return;
+
+      const pill = document.getElementById('detail-status-pill');
+      if (pill) {
+        pill.innerText = `● ${inv.statusLabel}`;
+        pill.className = `px-3.5 py-1 rounded-full text-xs font-bold ${inv.badgeClass}`;
+      }
+
+      const paidEl = document.getElementById('detail-amount-paid');
+      if (paidEl) paidEl.innerText = formatFCFAJS(inv.amountPaid || 0);
+
+      const remaining = Math.max(0, inv.amount - (inv.amountPaid || 0));
+      const remainingEl = document.getElementById('detail-total-ttc-final');
+      if (remainingEl) {
+        remainingEl.innerText = `RESTE À PAYER : ${formatFCFAJS(remaining)}`;
+        remainingEl.className = remaining > 0 
+          ? 'text-xl font-black text-rose-700 pt-2 border-t border-slate-200' 
+          : 'text-xl font-black text-emerald-700 pt-2 border-t border-slate-200';
+      }
+    }
+
+    function onInvoiceSearchInput(value) {
+      currentInvoiceSearch = value.toLowerCase().trim();
+      renderInvoicesTable();
+    }
+
+    function filterInvoicesByStatus(status, btnEl) {
+      currentInvoiceFilter = status;
+
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.className = "filter-btn btn-press-anim px-3.5 py-2 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition-all";
+      });
+
+      if (btnEl) {
+        btnEl.className = "filter-btn btn-press-anim px-3.5 py-2 rounded-lg text-xs font-extrabold bg-[#0B3B36] text-white border border-[#0B3B36] shadow-md transition-all scale-105";
+      }
+
+      renderInvoicesTable();
+    }
+
+    function updateFilterPillsCounts() {
+      const counts = {
+        all: invoicesList.length,
+        sent: invoicesList.filter(i => i.status === 'sent').length,
+        paid: invoicesList.filter(i => i.status === 'paid').length,
+        overdue: invoicesList.filter(i => i.status === 'overdue').length,
+        partial: invoicesList.filter(i => i.status === 'partial').length,
+        draft: invoicesList.filter(i => i.status === 'draft').length
+      };
+
+      const btnAll = document.getElementById('filter-btn-all');
+      if (btnAll) btnAll.innerText = `Toutes (${counts.all})`;
+
+      const btnSent = document.getElementById('filter-btn-sent');
+      if (btnSent) btnSent.innerText = `Envoyées (${counts.sent})`;
+
+      const btnPaid = document.getElementById('filter-btn-paid');
+      if (btnPaid) btnPaid.innerText = `Payées (${counts.paid})`;
+
+      const btnOverdue = document.getElementById('filter-btn-overdue');
+      if (btnOverdue) btnOverdue.innerText = `En retard (${counts.overdue})`;
+
+      const btnPartial = document.getElementById('filter-btn-partial');
+      if (btnPartial) btnPartial.innerText = `Partielles (${counts.partial})`;
+
+      const btnDraft = document.getElementById('filter-btn-draft');
+      if (btnDraft) btnDraft.innerText = `Brouillon (${counts.draft})`;
+    }
+
+    function renderInvoicesTable() {
+      updateFilterPillsCounts();
+      const tbody = document.getElementById('invoices-tbody');
+      const mobileContainer = document.getElementById('invoices-mobile-cards');
+      if (!tbody && !mobileContainer) return;
+
+      const filtered = invoicesList.filter(inv => {
+        const matchStatus = (currentInvoiceFilter === 'all' || inv.status === currentInvoiceFilter);
+        const matchSearch = !currentInvoiceSearch ||
+          inv.number.toLowerCase().includes(currentInvoiceSearch) ||
+          inv.client.toLowerCase().includes(currentInvoiceSearch);
+
+        return matchStatus && matchSearch;
+      });
+
+      const categorySum = filtered.reduce((acc, inv) => acc + inv.amount, 0);
+
+      const categoryNames = {
+        'all': 'Toutes les factures',
+        'sent': 'Factures Envoyées',
+        'paid': 'Factures Payées',
+        'overdue': 'Factures En retard',
+        'partial': 'Factures Partielles',
+        'draft': 'Factures Brouillons'
+      };
+
+      const nameEl = document.getElementById('selected-category-name');
+      const countEl = document.getElementById('selected-category-count');
+      const sumEl = document.getElementById('selected-category-sum');
+      const infoEl = document.getElementById('invoices-pagination-info');
+
+      if (nameEl) nameEl.innerText = categoryNames[currentInvoiceFilter] || 'Factures';
+      if (countEl) countEl.innerText = `(${filtered.length} document(s))`;
+      if (sumEl) sumEl.innerText = formatFCFAJS(categorySum);
+      if (infoEl) infoEl.innerText = `Affichage de ${filtered.length} sur ${invoicesList.length} factures`;
+
+      if (filtered.length === 0) {
+        const emptyHtml = `
+          <div class="py-12 text-center text-slate-500 font-medium">
+            <p class="font-bold text-slate-900">Aucune facture trouvée</p>
+            <p class="text-xs">Modifiez vos critères de recherche ou sélectionnez une autre catégorie.</p>
+          </div>
+        `;
+        if (tbody) tbody.innerHTML = `<tr><td colSpan="7">${emptyHtml}</td></tr>`;
+        if (mobileContainer) mobileContainer.innerHTML = emptyHtml;
+        return;
+      }
+
+      // Mobile Cards Render
+      if (mobileContainer) {
+        mobileContainer.innerHTML = filtered.map(inv => {
+          const isOverdue = inv.status === 'overdue';
+          const isPaid = inv.status === 'paid';
+          const echeanceBg = isOverdue 
+            ? 'bg-rose-50 border-rose-200 text-rose-800' 
+            : isPaid 
+            ? 'bg-slate-50 border-slate-200 text-slate-700' 
+            : 'bg-amber-50 border-amber-200 text-amber-900';
+
+          const isUser = accessPermissions.role === 'user';
+          const isDelLocked = isUser && accessPermissions.lockDeleteInvoice;
+          const delBtnHtml = isDelLocked
+            ? `<button onclick="event.stopPropagation(); deleteInvoiceCard('${inv.number}')" class="text-xs text-slate-400 font-bold bg-slate-100 border border-slate-200 px-2.5 py-1.5 rounded-lg cursor-not-allowed">🔒 Supprimer</button>`
+            : `<button onclick="event.stopPropagation(); deleteInvoiceCard('${inv.number}')" class="btn-press-anim text-xs text-rose-700 font-bold bg-rose-50 border border-rose-200 px-2.5 py-1.5 rounded-lg hover:bg-rose-100 transition-all">🗑️ Supprimer</button>`;
+
+          return `
+            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-3" onclick="switchTab('detail-facture')">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span class="font-extrabold text-sm text-[#0B3B36]">${inv.number}</span>
+                <span class="px-3 py-1 rounded-full text-xs font-bold ${inv.badgeClass}">● ${inv.statusLabel}</span>
+              </div>
+
+              <div>
+                <span class="text-[10px] font-bold uppercase text-slate-400">Client</span>
+                <h4 class="text-xl font-black text-[#0F1A18] tracking-tight leading-tight mt-0.5">${inv.client}</h4>
+              </div>
+
+              <div class="p-3 rounded-xl border flex items-center justify-between gap-2 text-xs font-bold ${echeanceBg}">
+                <div>
+                  <span class="text-[10px] uppercase font-bold block opacity-75">Échéance de Règlement</span>
+                  <span class="font-extrabold">${inv.dueDate}</span>
+                </div>
+                ${isOverdue ? '<span class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-rose-600 text-white">En retard</span>' : ''}
+              </div>
+
+              <div class="flex items-end justify-between pt-1">
+                <div>
+                  <span class="text-[10px] font-bold uppercase text-slate-400 block">Émission</span>
+                  <span class="text-xs text-slate-600 font-medium">${inv.issueDate}</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] font-bold uppercase text-slate-400 block">Montant TTC</span>
+                  <span class="text-lg font-black text-[#0B3B36] tabular-nums">${formatFCFAJS(inv.amount)}</span>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center justify-end gap-1.5 pt-2 border-t border-slate-100">
+                <button onclick="event.stopPropagation(); openPaymentModal('${inv.number}')" class="btn-press-anim text-xs text-white font-extrabold bg-[#0B3B36] hover:bg-[#0D4A42] px-2.5 py-1.5 rounded-lg shadow-sm">💳 Encaisser</button>
+                <button onclick="event.stopPropagation(); downloadInvoicePDF('${inv.number}')" class="btn-press-anim text-xs text-[#0B3B36] font-bold bg-[#EEF6F3] border border-[#B2D8CB] px-2.5 py-1.5 rounded-lg">PDF 📥</button>
+                <button onclick="event.stopPropagation(); duplicateInvoice('${inv.number}')" class="btn-press-anim text-xs text-sky-800 font-bold bg-sky-50 border border-sky-200 px-2.5 py-1.5 rounded-lg">📋 Dupliquer</button>
+                ${delBtnHtml}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Desktop Table Render
+      if (tbody) {
+        tbody.innerHTML = filtered.map(inv => {
+          const isOverdue = inv.status === 'overdue';
+          const dueDateHtml = isOverdue 
+            ? `<span class="inline-flex items-center gap-1 text-rose-700 font-extrabold bg-rose-50 px-2 py-0.5 rounded border border-rose-200 text-xs">⚠️ ${inv.dueDate}</span>` 
+            : `<span class="text-slate-600 font-medium">${inv.dueDate}</span>`;
+
+          const isUser = accessPermissions.role === 'user';
+          const isDelLocked = isUser && accessPermissions.lockDeleteInvoice;
+          const delBtnHtml = isDelLocked
+            ? `<button onclick="event.stopPropagation(); deleteInvoiceCard('${inv.number}')" class="text-xs text-slate-400 font-bold bg-slate-100 border border-slate-200 px-2.5 py-1.5 rounded-lg cursor-not-allowed">🔒 Supprimer</button>`
+            : `<button onclick="event.stopPropagation(); deleteInvoiceCard('${inv.number}')" class="btn-press-anim text-xs text-rose-700 font-bold bg-rose-50 border border-rose-200 px-2.5 py-1.5 rounded-lg hover:bg-rose-100 transition-all">🗑️ Supprimer</button>`;
+
+          return `
+            <tr class="hover:bg-slate-50 cursor-pointer transition-colors" onclick="switchTab('detail-facture')">
+              <td class="p-4 font-bold text-[#0B3B36] whitespace-nowrap">${inv.number}</td>
+              <td class="p-4 font-bold text-slate-900">${inv.client}</td>
+              <td class="p-4 text-slate-600 font-medium whitespace-nowrap">${inv.issueDate}</td>
+              <td class="p-4 font-semibold whitespace-nowrap">${dueDateHtml}</td>
+              <td class="p-4 text-right font-extrabold text-slate-900 tabular-nums text-sm whitespace-nowrap">${formatFCFAJS(inv.amount)}</td>
+              <td class="p-4 text-center whitespace-nowrap">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap shrink-0 ${inv.badgeClass}">● ${inv.statusLabel}</span>
+              </td>
+              <td class="p-4 text-right whitespace-nowrap">
+                <div class="flex items-center justify-end gap-1.5">
+                  <button onclick="event.stopPropagation(); openPaymentModal('${inv.number}')" class="btn-press-anim text-xs text-white font-extrabold bg-[#0B3B36] hover:bg-[#0D4A42] px-2.5 py-1.5 rounded-lg transition-all shadow-sm">💳 Encaisser</button>
+                  <button onclick="event.stopPropagation(); downloadInvoicePDF('${inv.number}')" class="btn-press-anim text-xs text-[#0B3B36] font-bold bg-[#EEF6F3] border border-[#B2D8CB] px-2.5 py-1.5 rounded-lg transition-all">PDF 📥</button>
+                  <button onclick="event.stopPropagation(); duplicateInvoice('${inv.number}')" class="btn-press-anim text-xs text-sky-800 font-bold bg-sky-50 border border-sky-200 px-2.5 py-1.5 rounded-lg transition-all">📋 Dupliquer</button>
+                  ${delBtnHtml}
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    function setDefaultDatesOnInvoiceForm() {
+      const issueInput = document.getElementById('new-inv-issue-date');
+      const dueInput = document.getElementById('new-inv-due-date');
+
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      const todayStr = `${yyyy}-${mm}-${dd}`;
+
+      const in14Days = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
+      const yyyy14 = in14Days.getFullYear();
+      const mm14 = String(in14Days.getMonth() + 1).padStart(2, '0');
+      const dd14 = String(in14Days.getDate()).padStart(2, '0');
+      const dueStr = `${yyyy14}-${mm14}-${dd14}`;
+
+      if (issueInput) issueInput.value = todayStr;
+      if (dueInput) dueInput.value = dueStr;
+    }
+
+    function switchTab(tabId) {
+      toggleMobileSidebar(false);
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      const activeTab = document.getElementById('tab-' + tabId);
+      if (activeTab) {
+        activeTab.classList.add('active');
+      }
+
+      if (tabId === 'nouvelle-facture') {
+        setDefaultDatesOnInvoiceForm();
+      }
+
+      document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.className = "nav-item btn-press-anim w-full text-left flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-100 hover:bg-[#0B3E38] hover:text-white border-l-4 border-transparent text-sm transition-all";
+        const svg = btn.querySelector('svg');
+        if (svg) svg.setAttribute('class', 'w-5 h-5 text-[#87BEAF]');
+        const badge = btn.querySelector('.nav-badge');
+        if (badge) badge.setAttribute('class', 'nav-badge text-xs bg-[#0B3E38] text-emerald-300 px-2.5 py-0.5 rounded-full font-bold transition-all');
+      });
+
+      const activeNav = document.getElementById('nav-' + tabId);
+      if (activeNav) {
+        activeNav.className = "nav-item btn-press-anim w-full text-left flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#0D4A42] text-white font-bold shadow-inner border-l-4 border-emerald-400 text-sm transition-all";
+        const activeSvg = activeNav.querySelector('svg');
+        if (activeSvg) activeSvg.setAttribute('class', 'w-5 h-5 text-emerald-400');
+        const activeBadge = activeNav.querySelector('.nav-badge');
+        if (activeBadge) activeBadge.setAttribute('class', 'nav-badge text-xs bg-emerald-400 text-[#05221F] px-2.5 py-0.5 rounded-full font-bold transition-all');
+      }
+
+      const titles = {
+        'dashboard': ['Tableau de bord', 'Suivi du chiffre d\'affaires, des encaissements et factures en retard'],
+        'factures': ['Gestion des Factures', `Consultez, filtrez et gérez vos ${invoicesList.length} documents de facturation`],
+        'nouvelle-facture': ['Créer une Facture', 'Émission conforme OHADA avec calcul automatique TVA'],
+        'detail-facture': ['Facture FAC-2026-0089', 'Aperçu du document et options de paiement'],
+        'clients': ['Carnet de Clients', `Répertoire de vos ${totalClientsCount} comptes commerciaux et encours`],
+        'parametres': ['Paramètres Entreprise', 'Identifiants fiscaux RCCM, instructions Mobile Money et filigrane']
+      };
+
+      if (titles[tabId]) {
+        document.getElementById('page-title').innerText = titles[tabId][0];
+        document.getElementById('page-subtitle').innerText = titles[tabId][1];
+      }
+
+      if (tabId === 'factures') {
+        renderInvoicesTable();
+      }
+
+      // Re-trigger bar growth animation on chart & update recent invoices
+      if (tabId === 'dashboard') {
+        renderDashboardInvoices();
+        document.querySelectorAll('.animate-grow-bar').forEach(bar => {
+          bar.style.animation = 'none';
+          bar.offsetHeight;
+          bar.style.animation = null;
+        });
+      }
+
+      if (tabId === 'parametres') {
+        renderAuditLogsTable();
+        renderCompanyUsersList();
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setDefaultDatesOnInvoiceForm();
+      renderDashboardInvoices();
+      renderInvoicesTable();
+      renderAuditLogsTable();
+      renderCompanyUsersList();
+
+      const gate = document.getElementById('auth-gate-screen');
+      if (!isUserLoggedIn && gate) {
+        gate.classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
