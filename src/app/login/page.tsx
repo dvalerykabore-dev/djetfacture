@@ -7,15 +7,11 @@ import { createClient } from '@/lib/supabase/client';
 import { Lock, Mail, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 export default function LoginPage() {
-  const router = Router();
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  function Router() {
-    return useRouter();
-  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
