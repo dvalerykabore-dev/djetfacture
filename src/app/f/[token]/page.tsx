@@ -110,7 +110,7 @@ export default function PublicInvoicePage({ params }: { params: { token: string 
 
             <div className="space-y-1 text-xs text-right">
               <p className="text-slate-600 font-medium">Sous-total HT : <strong className="text-ink">{formatFCFA(1059322)}</strong></p>
-              <p className="text-slate-600 font-medium">TVA (18 %) : <strong class="text-ink">{formatFCFA(190678)}</strong></p>
+              <p className="text-slate-600 font-medium">TVA (18 %) : <strong className="text-ink">{formatFCFA(190678)}</strong></p>
               <p className="text-xl font-black text-brand-900 pt-2 border-t border-slate-200">
                 NET À PAYER : {formatFCFA(invoice.total)}
               </p>

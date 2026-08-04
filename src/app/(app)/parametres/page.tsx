@@ -435,7 +435,7 @@ export default function ParametresPage() {
               </div>
               <div>
                 <h3 className="text-base font-extrabold text-ink">5. Création & Gestion des Utilisateurs Simples</h3>
-                <p class="text-xs text-muted">Créez des accès pour vos collaborateurs et définissez leurs permissions restreintes.</p>
+                <p className="text-xs text-muted">Créez des accès pour vos collaborateurs et définissez leurs permissions restreintes.</p>
               </div>
             </div>
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">
