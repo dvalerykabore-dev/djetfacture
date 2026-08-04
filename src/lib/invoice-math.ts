@@ -24,7 +24,7 @@ export interface InvoiceTotals {
  * - Total = sum(line_subtotals) + sum(tax(t))
  */
 export function calculateInvoiceTotals(items: InvoiceLineItem[]): InvoiceTotals {
-  let subtotal = 0n;
+  let subtotal = BigInt(0);
   const taxBases: Record<number, bigint> = {};
 
   for (const item of items) {
@@ -36,11 +36,11 @@ export function calculateInvoiceTotals(items: InvoiceLineItem[]): InvoiceTotals 
     subtotal += lineSub;
 
     const rate = item.taxRate || 0;
-    taxBases[rate] = (taxBases[rate] || 0n) + lineSub;
+    taxBases[rate] = (taxBases[rate] || BigInt(0)) + lineSub;
   }
 
   const taxGroupTotals: Record<number, bigint> = {};
-  let taxTotal = 0n;
+  let taxTotal = BigInt(0);
 
   for (const [rateStr, base] of Object.entries(taxBases)) {
     const rate = Number(rateStr);
@@ -49,7 +49,7 @@ export function calculateInvoiceTotals(items: InvoiceLineItem[]): InvoiceTotals 
       taxGroupTotals[rate] = taxAmount;
       taxTotal += taxAmount;
     } else {
-      taxGroupTotals[0] = 0n;
+      taxGroupTotals[0] = BigInt(0);
     }
   }
 

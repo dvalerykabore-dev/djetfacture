@@ -8,16 +8,16 @@ describe('Logic métier d’arithmétique financière DJETFACTURE (FCFA)', () =>
       {
         description: 'Audit de sécurité',
         quantity: 1,
-        unitPrice: 1000000n,
+        unitPrice: BigInt(1000000),
         taxRate: 18,
       },
     ];
 
     const totals = calculateInvoiceTotals(items);
-    expect(totals.subtotal).toBe(1000000n);
-    expect(totals.taxGroupTotals[18]).toBe(180000n);
-    expect(totals.taxTotal).toBe(180000n);
-    expect(totals.total).toBe(1180000n);
+    expect(totals.subtotal).toBe(BigInt(1000000));
+    expect(totals.taxGroupTotals[18]).toBe(BigInt(180000));
+    expect(totals.taxTotal).toBe(BigInt(180000));
+    expect(totals.total).toBe(BigInt(1180000));
   });
 
   it('gère les quantités décimales et les remises sans erreur de flottant', () => {
@@ -25,16 +25,16 @@ describe('Logic métier d’arithmétique financière DJETFACTURE (FCFA)', () =>
       {
         description: 'Assistance technique (2.5 jours)',
         quantity: 2.5,
-        unitPrice: 200000n, // Brut = 500 000
+        unitPrice: BigInt(200000), // Brut = 500 000
         discountPercent: 10, // Remise = 50 000 -> HT = 450 000
         taxRate: 18,
       },
     ];
 
     const totals = calculateInvoiceTotals(items);
-    expect(totals.subtotal).toBe(450000n);
-    expect(totals.taxGroupTotals[18]).toBe(81000n); // 450 000 * 18% = 81 000
-    expect(totals.total).toBe(531000n);
+    expect(totals.subtotal).toBe(BigInt(450000));
+    expect(totals.taxGroupTotals[18]).toBe(BigInt(81000)); // 450 000 * 18% = 81 000
+    expect(totals.total).toBe(BigInt(531000));
   });
 
   it('regroupe la TVA par groupe de taux pour éviter l’accumulation d’arrondis', () => {
@@ -42,28 +42,28 @@ describe('Logic métier d’arithmétique financière DJETFACTURE (FCFA)', () =>
       {
         description: 'Ligne 1 (TVA 18%)',
         quantity: 1,
-        unitPrice: 100000n,
+        unitPrice: BigInt(100000),
         taxRate: 18,
       },
       {
         description: 'Ligne 2 (TVA 18%)',
         quantity: 1,
-        unitPrice: 200000n,
+        unitPrice: BigInt(200000),
         taxRate: 18,
       },
       {
         description: 'Ligne 3 (Exonérée 0%)',
         quantity: 1,
-        unitPrice: 500000n,
+        unitPrice: BigInt(500000),
         taxRate: 0,
       },
     ];
 
     const totals = calculateInvoiceTotals(items);
-    expect(totals.subtotal).toBe(800000n);
-    expect(totals.taxGroupTotals[18]).toBe(54000n); // (100k + 200k) * 18% = 54k
-    expect(totals.taxGroupTotals[0]).toBe(0n);
-    expect(totals.total).toBe(854000n);
+    expect(totals.subtotal).toBe(BigInt(800000));
+    expect(totals.taxGroupTotals[18]).toBe(BigInt(54000)); // (100k + 200k) * 18% = 54k
+    expect(totals.taxGroupTotals[0]).toBe(BigInt(0));
+    expect(totals.total).toBe(BigInt(854000));
   });
 
   it('formate les montants en FCFA avec séparateur de milliers et sans centimes', () => {
