@@ -55,7 +55,20 @@ export function InvoiceForm() {
   // Calculate live totals using strict integer math
   const totals = calculateInvoiceTotals(items);
 
-  const selectedClient = MOCK_CLIENTS.find((c) => c.id === selectedClientId) || MOCK_CLIENTS[0];
+  const defaultClient: ClientMock = {
+    id: 'default',
+    name: 'Client par défaut',
+    contactName: 'Comptabilité',
+    email: '',
+    phone: '',
+    city: 'Dakar',
+    country: 'Sénégal',
+    totalInvoiced: 0,
+    activeOutstanding: 0,
+    avatarColor: 'bg-brand-900',
+  };
+
+  const selectedClient = MOCK_CLIENTS.find((c) => c.id === selectedClientId) || MOCK_CLIENTS[0] || defaultClient;
 
   const handleAddItem = () => {
     setItems([

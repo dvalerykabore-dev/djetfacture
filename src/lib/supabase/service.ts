@@ -115,7 +115,7 @@ export async function getDefaultOrganizationId(): Promise<string> {
   const supabase = createClient();
   const { data } = await supabase.from('organizations').select('id').limit(1);
   
-  if (data && data.length > 0) {
+  if (data && data.length > 0 && data[0]) {
     return data[0].id;
   }
 
