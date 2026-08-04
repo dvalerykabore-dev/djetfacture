@@ -320,6 +320,8 @@ export function RecentInvoicesTable() {
                     </div>
                   </td>
                 </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
