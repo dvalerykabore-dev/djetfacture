@@ -30,7 +30,7 @@ import {
 
 export default function DetailFacturePage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const fallbackInvoice = {
+  const fallbackInvoice: InvoiceMock = {
     id: 'default',
     number: 'FACT-2024-001',
     clientName: 'Client de démonstration',
@@ -41,7 +41,7 @@ export default function DetailFacturePage({ params }: { params: { id: string } }
     taxTotal: 180000,
     total: 1180000,
     amountPaid: 0,
-    status: 'sent' as InvoiceStatus,
+    status: 'sent',
     itemsCount: 1,
   };
   const invoice = MOCK_RECENT_INVOICES.find((inv) => inv.id === params.id) || MOCK_RECENT_INVOICES[0] || fallbackInvoice;

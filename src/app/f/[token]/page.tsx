@@ -1,11 +1,11 @@
 import React from 'react';
-import { MOCK_RECENT_INVOICES } from '@/lib/mock-data';
+import { MOCK_RECENT_INVOICES, InvoiceMock } from '@/lib/mock-data';
 import { formatFCFA, formatDateFR } from '@/lib/format';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { Download, Smartphone, CheckCircle2, ShieldCheck, Printer, Clock, Calendar } from 'lucide-react';
 
 export default function PublicInvoicePage({ params }: { params: { token: string } }) {
-  const fallbackInvoice = {
+  const fallbackInvoice: InvoiceMock = {
     id: 'default',
     number: 'FACT-2024-001',
     clientName: 'Client de démonstration',
@@ -16,7 +16,7 @@ export default function PublicInvoicePage({ params }: { params: { token: string 
     taxTotal: 180000,
     total: 1180000,
     amountPaid: 0,
-    status: 'sent' as const,
+    status: 'sent',
     itemsCount: 1,
   };
   const invoice = MOCK_RECENT_INVOICES[0] || fallbackInvoice;

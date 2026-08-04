@@ -1,21 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MOCK_RECENT_INVOICES } from '@/lib/mock-data';
+import { MOCK_RECENT_INVOICES, InvoiceMock } from '@/lib/mock-data';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const fallbackInvoice = {
+  const fallbackInvoice: InvoiceMock = {
     id: 'default',
     number: 'FACT-2024-001',
     clientName: 'Client de démonstration',
+    clientAvatarColor: 'bg-emerald-600',
     issueDate: '2026-07-01',
     dueDate: '2026-07-15',
     subtotal: 1000000,
     taxTotal: 180000,
     total: 1180000,
     amountPaid: 0,
-    status: 'sent' as const,
+    status: 'sent',
     itemsCount: 1,
   };
   const invoice = MOCK_RECENT_INVOICES.find((i) => i.id === params.id) || MOCK_RECENT_INVOICES[0] || fallbackInvoice;

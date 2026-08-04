@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 export default function DetailClientPage({ params }: { params: { id: string } }) {
-  const fallbackClient = {
+  const fallbackClient: ClientMock = {
     id: 'default',
     name: 'Client de démonstration',
     contactName: 'Service Comptabilité',
@@ -25,6 +25,8 @@ export default function DetailClientPage({ params }: { params: { id: string } })
     phone: '+221 77 000 00 00',
     city: 'Dakar',
     country: 'Sénégal',
+    rccm: 'SN-DKR-2024-B-0000',
+    ifu: '123456789',
     totalInvoiced: 0,
     activeOutstanding: 0,
     avatarColor: 'bg-emerald-600',
