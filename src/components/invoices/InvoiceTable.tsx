@@ -24,7 +24,7 @@ export function InvoiceTable() {
 
   const filteredInvoices = invoices.filter((invoice) => {
     const matchesSearch =
-      invoice.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (invoice.number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       invoice.clientName.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
@@ -33,10 +33,11 @@ export function InvoiceTable() {
     return matchesSearch && matchesStatus;
   });
 
-  const categorySum = filteredInvoices.reduce((acc, inv) => acc + inv.totalTTC, 0);
+  const categorySum = filteredInvoices.reduce((acc, inv) => acc + inv.total, 0);
 
-  const getStatusBadge = (status: InvoiceMock['status']) => {
+  const getStatusBadge = (status: InvoiceMock['status'] | string) => {
     switch (status) {
+      case 'paid':
       case 'PAID':
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
@@ -44,6 +45,7 @@ export function InvoiceTable() {
             Payée
           </span>
         );
+      case 'sent':
       case 'SENT':
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
@@ -51,6 +53,7 @@ export function InvoiceTable() {
             Envoyée
           </span>
         );
+      case 'overdue':
       case 'OVERDUE':
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-800 border border-rose-200">
@@ -58,6 +61,7 @@ export function InvoiceTable() {
             En retard
           </span>
         );
+      case 'partial':
       case 'PARTIAL':
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-sky-50 text-sky-800 border border-sky-200">

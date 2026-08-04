@@ -72,3 +72,4 @@ export const MOCK_MONTHLY_REVENUE: MonthlyRevenueData[] = [
 export const MOCK_CLIENTS: ClientMock[] = [];
 
 export const MOCK_RECENT_INVOICES: InvoiceMock[] = [];
+export const MOCK_INVOICES: InvoiceMock[] = MOCK_RECENT_INVOICES;
