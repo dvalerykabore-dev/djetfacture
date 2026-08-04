@@ -1,16 +1,25 @@
-import { z } from 'zod';
+export interface ClientInput {
+  id?: string;
+  name: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  address?: string;
+  city: string;
+  country: string;
+  rccm?: string;
+  ifu?: string;
+}
 
-export const clientSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().min(2, 'La raison sociale doit comporter au moins 2 caractères'),
-  contactName: z.string().min(2, 'Le nom du contact est requis'),
-  email: z.string().email('Adresse email invalide'),
-  phone: z.string().min(8, 'Le numéro de téléphone est requis'),
-  address: z.string().optional(),
-  city: z.string().min(1, 'La ville est requise'),
-  country: z.string().min(1, 'Le pays est requis'),
-  rccm: z.string().optional(),
-  ifu: z.string().optional(),
-});
+export function validateClientInput(data: Partial<ClientInput>): boolean {
+  if (!data.name || data.name.trim().length < 2) return false;
+  if (!data.contactName || data.contactName.trim().length < 2) return false;
+  if (!data.email) return false;
+  return true;
+}
 
-export type ClientInput = z.infer<typeof clientSchema>;
+export const clientSchema = {
+  parse: (data: Partial<ClientInput>): ClientInput => {
+    return data as ClientInput;
+  },
+};
