@@ -14,9 +14,21 @@ import {
   X,
 } from 'lucide-react';
 
-export function Sidebar() {
+interface SidebarProps {
+  mobileOpen?: boolean;
+  onCloseMobile?: () => void;
+}
+
+export function Sidebar({ mobileOpen: controlledMobileOpen, onCloseMobile }: SidebarProps = {}) {
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [internalMobileOpen, setInternalMobileOpen] = useState(false);
+
+  const isMobileOpen = controlledMobileOpen !== undefined ? controlledMobileOpen : internalMobileOpen;
+
+  const handleClose = () => {
+    if (onCloseMobile) onCloseMobile();
+    setInternalMobileOpen(false);
+  };
 
   const navItems = [
     {
@@ -49,7 +61,7 @@ export function Sidebar() {
     <>
       {/* Mobile Toggle Button (Visible on screens < md) */}
       <button
-        onClick={() => setMobileOpen(true)}
+        onClick={() => setInternalMobileOpen(true)}
         className="md:hidden fixed top-3.5 left-4 z-40 p-2.5 rounded-xl bg-brand-900 text-white shadow-lg hover:bg-brand-800 transition-all no-print"
         aria-label="Ouvrir le menu"
       >
@@ -57,9 +69,9 @@ export function Sidebar() {
       </button>
 
       {/* Mobile Dark Backdrop Overlay */}
-      {mobileOpen && (
+      {isMobileOpen && (
         <div
-          onClick={() => setMobileOpen(false)}
+          onClick={handleClose}
           className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 md:hidden transition-opacity"
         />
       )}
@@ -67,7 +79,7 @@ export function Sidebar() {
       {/* Sidebar Drawer */}
       <aside
         className={`w-64 bg-[#0B3B36] text-white flex flex-col fixed inset-y-0 left-0 z-50 shadow-xl select-none no-print transition-transform duration-300 ${
-          mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+          isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
         {/* Header & Mobile Close */}
@@ -88,7 +100,7 @@ export function Sidebar() {
           </div>
 
           <button
-            onClick={() => setMobileOpen(false)}
+            onClick={handleClose}
             className="md:hidden text-[#87BEAF] hover:text-white p-1"
           >
             <X className="w-5 h-5" />
@@ -99,7 +111,7 @@ export function Sidebar() {
         <div className="px-4 pt-5 pb-2">
           <Link
             href="/factures/nouvelle"
-            onClick={() => setMobileOpen(false)}
+            onClick={handleClose}
             className="w-full py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-[#05221F] font-extrabold text-sm shadow-md transition-all flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
@@ -118,7 +130,7 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setMobileOpen(false)}
+                onClick={handleClose}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm transition-all ${
                   isActive
                     ? 'bg-[#0D4A42] text-white font-bold shadow-inner border-l-4 border-emerald-400'
