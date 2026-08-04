@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { MOCK_STATS } from '@/lib/mock-data';
 import { StatCard } from '@/components/ui/StatCard';

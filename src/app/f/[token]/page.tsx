@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { MOCK_RECENT_INVOICES, InvoiceMock } from '@/lib/mock-data';
 import { formatFCFA, formatDateFR } from '@/lib/format';
