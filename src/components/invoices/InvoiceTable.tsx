@@ -168,8 +168,8 @@ export function InvoiceTable() {
         <div className="block md:hidden p-3 space-y-3">
           {filteredInvoices.length > 0 ? (
             filteredInvoices.map((invoice) => {
-              const isOverdue = invoice.status === 'OVERDUE';
-              const isPaid = invoice.status === 'PAID';
+              const isOverdue = invoice.status === 'overdue';
+              const isPaid = invoice.status === 'paid';
 
               return (
                 <div
@@ -289,7 +289,7 @@ export function InvoiceTable() {
             <tbody className="divide-y divide-slate-100 text-sm">
               {filteredInvoices.length > 0 ? (
                 filteredInvoices.map((invoice) => {
-                  const isOverdue = invoice.status === 'OVERDUE';
+                  const isOverdue = invoice.status === 'overdue';
 
                   return (
                     <tr
