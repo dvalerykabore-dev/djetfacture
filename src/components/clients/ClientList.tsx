@@ -148,7 +148,7 @@ export function ClientList({ onOpenCreateModal }: { onOpenCreateModal?: () => vo
                   <div
                     className={`w-10 h-10 rounded-xl ${client.avatarColor || 'bg-[#0B3B36]'} text-white font-black text-sm flex items-center justify-center shrink-0 shadow-sm`}
                   >
-                    {clientName.substring(0, 2).toUpperCase()}
+                    {(clientName || 'CL').substring(0, 2).toUpperCase()}
                   </div>
                   <div>
                     <Link href={`/clients/${client.id}`} className="hover:underline">

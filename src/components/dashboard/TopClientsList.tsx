@@ -26,7 +26,7 @@ export function TopClientsList() {
               <div
                 className={`w-9 h-9 rounded-xl ${client.avatarColor} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm`}
               >
-                {client.name.substring(0, 2).toUpperCase()}
+                {(client.name || 'CL').substring(0, 2).toUpperCase()}
               </div>
               <div className="min-w-0">
                 <h4 className="text-xs font-bold text-ink truncate group-hover:text-brand-900 transition-colors">

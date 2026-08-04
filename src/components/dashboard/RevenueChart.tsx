@@ -6,7 +6,7 @@ import { formatFCFA } from '@/lib/format';
 import { TrendingUp, Calendar } from 'lucide-react';
 
 export function RevenueChart() {
-  const maxVal = Math.max(...MOCK_MONTHLY_REVENUE.map((d) => d.invoiced));
+  const maxVal = Math.max(...MOCK_MONTHLY_REVENUE.map((d) => d.invoiced), 1);
 
   return (
     <div className="bg-surface rounded-card p-6 border border-slate-200/80 shadow-card">
