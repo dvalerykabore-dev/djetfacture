@@ -32,13 +32,13 @@ export default function MarketingLandingPage() {
 
         <div className="flex items-center gap-3">
           <Link
-            href="/connexion"
+            href="/login"
             className="py-2.5 px-4 rounded-input text-brand-900 font-bold text-xs hover:bg-slate-100 transition-all"
           >
             Se connecter
           </Link>
           <Link
-            href="/inscription"
+            href="/register"
             className="py-2.5 px-4 bg-brand-900 hover:bg-brand-700 text-white font-bold text-xs rounded-input shadow-card transition-all"
           >
             Démarrer gratuitement

@@ -46,7 +46,13 @@ exit /b 1
 echo Executable Git detecte avec succes !
 echo.
 
+if exist "src\app\page.tsx" (
+    echo Nettoyage du fichier en double src\app\page.tsx...
+    del /f /q "src\app\page.tsx"
+)
+
 %GIT_CMD% init
+%GIT_CMD% rm --cached src/app/page.tsx 2>nul
 %GIT_CMD% config user.email "dvalerykabore@dev.com"
 %GIT_CMD% config user.name "Valery Kabore"
 %GIT_CMD% add .
