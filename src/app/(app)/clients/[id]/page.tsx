@@ -14,6 +14,8 @@ import {
   MapPin,
   FileText,
   Plus,
+  AlertTriangle,
+  Clock,
 } from 'lucide-react';
 
 export default function DetailClientPage({ params }: { params: { id: string } }) {
