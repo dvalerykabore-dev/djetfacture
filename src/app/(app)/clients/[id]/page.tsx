@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { MOCK_CLIENTS, MOCK_RECENT_INVOICES } from '@/lib/mock-data';
+import { MOCK_CLIENTS, MOCK_RECENT_INVOICES, ClientMock } from '@/lib/mock-data';
 import { formatFCFA, formatDateFR } from '@/lib/format';
 import { StatusPill } from '@/components/ui/StatusPill';
 import {

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { MOCK_RECENT_INVOICES, InvoiceStatus } from '@/lib/mock-data';
+import { MOCK_RECENT_INVOICES, InvoiceStatus, InvoiceMock } from '@/lib/mock-data';
 import { formatFCFA, formatDateFR } from '@/lib/format';
 import { StatusPill } from '@/components/ui/StatusPill';
 import {
