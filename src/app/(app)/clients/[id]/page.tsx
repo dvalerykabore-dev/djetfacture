@@ -14,12 +14,22 @@ import {
   MapPin,
   FileText,
   Plus,
-  Clock,
-  AlertTriangle,
 } from 'lucide-react';
 
 export default function DetailClientPage({ params }: { params: { id: string } }) {
-  const client = MOCK_CLIENTS.find((c) => c.id === params.id) || MOCK_CLIENTS[0]!;
+  const fallbackClient = {
+    id: 'default',
+    name: 'Client de démonstration',
+    contactName: 'Service Comptabilité',
+    email: 'contact@client.com',
+    phone: '+221 77 000 00 00',
+    city: 'Dakar',
+    country: 'Sénégal',
+    totalInvoiced: 0,
+    activeOutstanding: 0,
+    avatarColor: 'bg-emerald-600',
+  };
+  const client = MOCK_CLIENTS.find((c) => c.id === params.id) || MOCK_CLIENTS[0] || fallbackClient;
   const clientInvoices = MOCK_RECENT_INVOICES.filter((inv) => inv.clientName === client.name);
 
   return (

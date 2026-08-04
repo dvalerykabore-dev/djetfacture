@@ -25,7 +25,7 @@ export function OverdueAlertCard() {
 
       <div className="space-y-2.5 mt-4">
         {overdueInvoices.map((inv) => {
-          const whatsappMessage = `Bonjour ${inv.clientName}, rappel amical concernant la facture ${inv.number} échue depuis le ${formatDateFR(inv.dueDate)}. Solde restant: ${formatFCFA(inv.total - inv.amountPaid)}. Merci de nous confirmer votre règlement.`;
+          const whatsappMessage = `Bonjour ${inv.clientName}, rappel amical concernant la facture ${inv.number || 'Brouillon'} échue depuis le ${formatDateFR(inv.dueDate)}. Solde restant: ${formatFCFA(inv.total - inv.amountPaid)}. Merci de nous confirmer votre règlement.`;
 
           return (
             <div
@@ -34,7 +34,7 @@ export function OverdueAlertCard() {
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-xs text-ink">{inv.number}</span>
+                  <span className="font-bold text-xs text-ink">{inv.number || 'Brouillon'}</span>
                   <span className="text-[10px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded">
                     Échue le {formatDateFR(inv.dueDate)}
                   </span>

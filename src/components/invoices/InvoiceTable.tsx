@@ -236,7 +236,7 @@ export function InvoiceTable() {
                     <div className="text-right">
                       <span className="text-[10px] font-bold uppercase text-slate-400 block">Montant TTC</span>
                       <span className="text-lg font-black text-[#0B3B36] tabular-nums">
-                        {formatFCFA(invoice.totalTTC)}
+                        {formatFCFA(invoice.total)}
                       </span>
                     </div>
                   </div>
@@ -314,7 +314,7 @@ export function InvoiceTable() {
                         )}
                       </td>
                       <td className="p-4 text-right font-extrabold text-slate-900 tabular-nums text-sm whitespace-nowrap">
-                        {formatFCFA(invoice.totalTTC)}
+                        {formatFCFA(invoice.total)}
                       </td>
                       <td className="p-4 text-center whitespace-nowrap">{getStatusBadge(invoice.status)}</td>
                       <td className="p-4 text-right whitespace-nowrap">

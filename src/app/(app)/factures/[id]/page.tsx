@@ -30,7 +30,21 @@ import {
 
 export default function DetailFacturePage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const invoice = MOCK_RECENT_INVOICES.find((inv) => inv.id === params.id) || MOCK_RECENT_INVOICES[0]!;
+  const fallbackInvoice = {
+    id: 'default',
+    number: 'FACT-2024-001',
+    clientName: 'Client de démonstration',
+    clientAvatarColor: 'bg-emerald-600',
+    issueDate: '2026-07-01',
+    dueDate: '2026-07-15',
+    subtotal: 1000000,
+    taxTotal: 180000,
+    total: 1180000,
+    amountPaid: 0,
+    status: 'sent' as InvoiceStatus,
+    itemsCount: 1,
+  };
+  const invoice = MOCK_RECENT_INVOICES.find((inv) => inv.id === params.id) || MOCK_RECENT_INVOICES[0] || fallbackInvoice;
   
   const [currentStatus, setCurrentStatus] = useState<InvoiceStatus>(invoice.status);
   const [copiedLink, setCopiedLink] = useState(false);

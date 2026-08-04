@@ -5,7 +5,20 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const invoice = MOCK_RECENT_INVOICES.find((i) => i.id === params.id) || MOCK_RECENT_INVOICES[0]!;
+  const fallbackInvoice = {
+    id: 'default',
+    number: 'FACT-2024-001',
+    clientName: 'Client de démonstration',
+    issueDate: '2026-07-01',
+    dueDate: '2026-07-15',
+    subtotal: 1000000,
+    taxTotal: 180000,
+    total: 1180000,
+    amountPaid: 0,
+    status: 'sent' as const,
+    itemsCount: 1,
+  };
+  const invoice = MOCK_RECENT_INVOICES.find((i) => i.id === params.id) || MOCK_RECENT_INVOICES[0] || fallbackInvoice;
 
   // Placeholder for serverless PDF binary generation response
   const htmlContent = `

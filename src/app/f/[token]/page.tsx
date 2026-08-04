@@ -5,7 +5,21 @@ import { StatusPill } from '@/components/ui/StatusPill';
 import { Download, Smartphone, CheckCircle2, ShieldCheck, Printer, Clock, Calendar } from 'lucide-react';
 
 export default function PublicInvoicePage({ params }: { params: { token: string } }) {
-  const invoice = MOCK_RECENT_INVOICES[0]!;
+  const fallbackInvoice = {
+    id: 'default',
+    number: 'FACT-2024-001',
+    clientName: 'Client de démonstration',
+    clientAvatarColor: 'bg-emerald-600',
+    issueDate: '2026-07-01',
+    dueDate: '2026-07-15',
+    subtotal: 1000000,
+    taxTotal: 180000,
+    total: 1180000,
+    amountPaid: 0,
+    status: 'sent' as const,
+    itemsCount: 1,
+  };
+  const invoice = MOCK_RECENT_INVOICES[0] || fallbackInvoice;
 
   return (
     <div className="min-h-screen bg-canvas py-8 px-4 font-sans text-ink">
